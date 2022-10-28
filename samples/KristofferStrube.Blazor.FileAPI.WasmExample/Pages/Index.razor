@@ -17,8 +17,11 @@ Using the methods from the <code>URL</code> interface we construct a <code>Blob 
 
     protected override async Task OnInitializedAsync()
     {
-        var mountainBytes = await HttpClient.GetByteArrayAsync("/images/mountain.jpg");
-        var blob = await Blob.CreateAsync(JSRuntime, new BlobPart[] { new(mountainBytes) }, new() { Type = "image/png" });
+        var mountainBytes = await HttpClient.GetByteArrayAsync("images/mountain.jpg");
+        var blob = await Blob.CreateAsync(
+            JSRuntime,
+            new BlobPart[] { new(mountainBytes) },
+            new() { Type = "image/png" });
         URL = new URL(JSRuntime);
         blobURL = await URL.CreateObjectURLAsync(blob);
     }
