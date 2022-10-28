@@ -5,3 +5,7 @@ export async function arrayBuffer(blob) {
     var bytes = new Uint8Array(buffer);
     return bytes;
 }
+
+export function constructBlob(blobParts, options) {
+    return new Blob(blobParts, options);
+}

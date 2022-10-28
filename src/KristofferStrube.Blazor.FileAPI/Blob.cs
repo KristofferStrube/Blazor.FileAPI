@@ -19,6 +19,28 @@ public class Blob : BaseJSWrapper
     }
 
     /// <summary>
+    /// Constructs a wrapper instance using the standard constructor.
+    /// </summary>
+    /// <param name="blobParts">The parts that will make the new <see cref="Blob"/>.</param>
+    /// <param name="options">Options for constructing the new Blob which includes MIME type and line endings settings.</param>
+    /// <returns></returns>
+    public static async Task<Blob> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
+    {
+        var helper = await jSRuntime.GetHelperAsync();
+        var jsBlobParts = blobParts is null ? null :
+            blobParts
+                .Select<BlobPart, object?>(blobPart => blobPart.type switch
+                {
+                    BlobPartType.BufferSource => blobPart.byteArrayPart,
+                    BlobPartType.Blob => blobPart.stringPart,
+                    _ => blobPart.blobPart?.JSReference
+                })
+                .ToArray();
+        var jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
+        return new Blob(jSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>

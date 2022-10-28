@@ -1,10 +1,34 @@
 ﻿@page "/"
+@implements IAsyncDisposable
+
 @inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
 
 <PageTitle>FileAPI - Index</PageTitle>
 
-<h2>Still working on a demo</h2>
+<h2>Loading an image as a Blob</h2>
+In this sample we download an image using the <code>HttpClient</code> and create a new <code>Blob</code> from that.
+Using the methods from the <code>URL</code> interface we construct a <code>Blob URL</code> for the image and use that as the source for the img-tag below.
+<img src="@blobURL" style="max-width:100%; max-height:50vh;" />
 
 @code {
+    private URL? URL;
+    private string blobURL = "";
 
+    protected override async Task OnInitializedAsync()
+    {
+        var mountainBytes = await HttpClient.GetByteArrayAsync("/images/mountain.jpg");
+        var blob = await Blob.CreateAsync(JSRuntime, new BlobPart[] { new(mountainBytes) }, new() { Type = "image/png" });
+        URL = new URL(JSRuntime);
+        blobURL = await URL.CreateObjectURLAsync(blob);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (URL is not null)
+        {
+            await URL.RevokeObjectURLAsync(blobURL);
+        }
+        GC.SuppressFinalize(this);
+    }
 }
