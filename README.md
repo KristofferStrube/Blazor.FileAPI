@@ -11,3 +11,10 @@ A Blazor wrapper for the browser [File API](https://www.w3.org/TR/FileAPI/)
 The API provides a standard for representing file objects in the browser and ways to select them and access their data. One of the most used interfaces that is at the core of this API is the [Blob](https://www.w3.org/TR/FileAPI/#dfn-Blob) interface. This project implements a wrapper around the API for Blazor so that we can easily and safely interact with files in the browser.
 
 **The wrapper is still being developed so the API Coverage is very limited currently.**
+
+# Demo
+The sample project can be demoed at https://kristofferstrube.github.io/Blazor.FileAPI/
+
+On each page you can find the corresponding code for the example in the top right corner.
+
+On the *API Coverage Status* page you can get an overview over what parts of the API we support currently.
