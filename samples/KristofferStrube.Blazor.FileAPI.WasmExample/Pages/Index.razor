@@ -3,6 +3,7 @@
 
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
+@inject URL URL
 
 <PageTitle>FileAPI - Index</PageTitle>
 
@@ -12,7 +13,6 @@ Using the methods from the <code>URL</code> interface we construct a <code>Blob 
 <img src="@blobURL" style="max-width:100%; max-height:50vh;" />
 
 @code {
-    private URL? URL;
     private string blobURL = "";
 
     protected override async Task OnInitializedAsync()
@@ -22,16 +22,12 @@ Using the methods from the <code>URL</code> interface we construct a <code>Blob 
             JSRuntime,
             new BlobPart[] { new(mountainBytes) },
             new() { Type = "image/png" });
-        URL = new URL(JSRuntime);
         blobURL = await URL.CreateObjectURLAsync(blob);
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (URL is not null)
-        {
-            await URL.RevokeObjectURLAsync(blobURL);
-        }
+        await URL.RevokeObjectURLAsync(blobURL);
         GC.SuppressFinalize(this);
     }
 }
