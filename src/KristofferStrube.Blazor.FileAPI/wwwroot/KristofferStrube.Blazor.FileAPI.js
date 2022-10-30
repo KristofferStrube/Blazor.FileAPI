@@ -13,3 +13,7 @@ export function constructBlob(blobParts, options) {
 export function constructFile(blobParts, fileName, options) {
     return new File(blobParts, fileName, options);
 }
+
+export function constructFileReader() {
+    return new FileReader();
+}
