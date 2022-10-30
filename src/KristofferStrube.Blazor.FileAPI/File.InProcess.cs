@@ -23,6 +23,28 @@ public class FileInProcess : File
     }
 
     /// <summary>
+    /// Constructs a wrapper instance using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="fileBits">The bits that will make the new <see cref="File"/>.</param>
+    /// <param name="fileName">The name of the new file.</param>
+    /// <param name="options">Options for constructing the new Blob which includes MIME type, line endings, and last modified date.</param>
+    /// <returns></returns>
+    public static new async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
+    {
+        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
+        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch
+            {
+                BlobPartType.BufferSource => blobPart.byteArrayPart,
+                BlobPartType.Blob => blobPart.stringPart,
+                _ => blobPart.blobPart?.JSReference
+            })
+            .ToArray();
+        IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructFile", jsFileBits, fileName, options);
+        return new FileInProcess(jSRuntime, inProcesshelper, jSInstance);
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
@@ -35,6 +57,18 @@ public class FileInProcess : File
     }
 
     /// <summary>
+    /// The size of this blob.
+    /// </summary>
+    /// <returns>A <see langword="ulong"/> representing the size of the blob in bytes.</returns>
+    public ulong Size => inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "size");
+
+    /// <summary>
+    /// The media type of this blob. This is either a parseable MIME type or an empty string.
+    /// </summary>
+    /// <returns>The MIME type of this blob.</returns>
+    public string Type => inProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
+
+    /// <summary>
     /// The name of the file including file extension.
     /// </summary>
     /// <returns>The file name.</returns>
@@ -44,5 +78,5 @@ public class FileInProcess : File
     /// The time that the file was last modified.
     /// </summary>
     /// <returns>A new <see cref="DateTime"/> object representing when the file was last modified.</returns>
-    public DateTime LastModified => DateTime.UnixEpoch.AddMilliseconds(inProcessHelper.Invoke<long>("getAttribute", JSReference, "lastModified"));
+    public DateTime LastModified => DateTime.UnixEpoch.AddMilliseconds(inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "lastModified"));
 }

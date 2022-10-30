@@ -7,7 +7,7 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// </summary>
 public class URL
 {
-    private IJSRuntime jSRuntime;
+    private readonly IJSRuntime jSRuntime;
 
     public URL(IJSRuntime jSRuntime)
     {

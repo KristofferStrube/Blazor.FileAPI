@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.Streams;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
@@ -21,22 +22,21 @@ public class Blob : BaseJSWrapper
     /// <summary>
     /// Constructs a wrapper instance using the standard constructor.
     /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="blobParts">The parts that will make the new <see cref="Blob"/>.</param>
     /// <param name="options">Options for constructing the new Blob which includes MIME type and line endings settings.</param>
     /// <returns></returns>
     public static async Task<Blob> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
     {
-        var helper = await jSRuntime.GetHelperAsync();
-        var jsBlobParts = blobParts is null ? null :
-            blobParts
-                .Select<BlobPart, object?>(blobPart => blobPart.type switch
-                {
-                    BlobPartType.BufferSource => blobPart.byteArrayPart,
-                    BlobPartType.Blob => blobPart.stringPart,
-                    _ => blobPart.blobPart?.JSReference
-                })
-                .ToArray();
-        var jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
+            {
+                BlobPartType.BufferSource => blobPart.byteArrayPart,
+                BlobPartType.Blob => blobPart.stringPart,
+                _ => blobPart.blobPart?.JSReference
+            })
+            .ToArray();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
         return new Blob(jSRuntime, jSInstance);
     }
 
@@ -53,18 +53,30 @@ public class Blob : BaseJSWrapper
     /// <returns>A <see langword="ulong"/> representing the size of the blob in bytes.</returns>
     public async Task<ulong> GetSizeAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "size");
     }
-    
+
     /// <summary>
     /// The media type of this blob. This is either a parseable MIME type or an empty string.
     /// </summary>
     /// <returns>The MIME type of this blob.</returns>
     public async Task<string> GetTypeAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<string>("getAttribute", JSReference, "type");
+    }
+
+    public async Task<ReadableStream> StreamAsync()
+    {
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
+        return ReadableStream.Create(jSRuntime, jSInstance);
+    }
+
+    public async Task<ReadableStreamInProcess> StreamInProcessAsync()
+    {
+        IJSInProcessObjectReference jSInstance = await JSReference.InvokeAsync<IJSInProcessObjectReference>("stream");
+        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
     }
 
     /// <summary>
@@ -82,7 +94,7 @@ public class Blob : BaseJSWrapper
     /// <returns>All bytes in the blob.</returns>
     public async Task<byte[]> ArrayBufferAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<byte[]>("arrayBuffer", JSReference);
     }
 }

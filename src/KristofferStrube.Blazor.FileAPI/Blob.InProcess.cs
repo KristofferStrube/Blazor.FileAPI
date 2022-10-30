@@ -23,6 +23,27 @@ public class BlobInProcess : Blob
     }
 
     /// <summary>
+    /// Constructs a wrapper instance using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="blobParts">The parts that will make the new <see cref="Blob"/>.</param>
+    /// <param name="options">Options for constructing the new Blob which includes MIME type and line endings settings.</param>
+    /// <returns></returns>
+    public static new async Task<BlobInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
+    {
+        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
+        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
+            {
+                BlobPartType.BufferSource => blobPart.byteArrayPart,
+                BlobPartType.Blob => blobPart.stringPart,
+                _ => blobPart.blobPart?.JSReference
+            })
+            .ToArray();
+        IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructBlob", jsBlobParts, options);
+        return new BlobInProcess(jSRuntime, inProcesshelper, jSInstance);
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>

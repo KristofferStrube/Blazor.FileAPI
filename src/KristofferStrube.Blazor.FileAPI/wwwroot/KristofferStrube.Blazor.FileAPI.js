@@ -9,3 +9,7 @@ export async function arrayBuffer(blob) {
 export function constructBlob(blobParts, options) {
     return new Blob(blobParts, options);
 }
+
+export function constructFile(blobParts, fileName, options) {
+    return new File(blobParts, fileName, options);
+}

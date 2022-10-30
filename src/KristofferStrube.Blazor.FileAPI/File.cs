@@ -19,6 +19,28 @@ public class File : Blob
     }
 
     /// <summary>
+    /// Constructs a wrapper instance using the standard constructor.
+    /// </summary>
+    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
+    /// <param name="fileBits">The bits that will make the new <see cref="File"/>.</param>
+    /// <param name="fileName">The name of the new file.</param>
+    /// <param name="options">Options for constructing the new Blob which includes MIME type, line endings, and last modified date.</param>
+    /// <returns></returns>
+    public static async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
+    {
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch
+            {
+                BlobPartType.BufferSource => blobPart.byteArrayPart,
+                BlobPartType.Blob => blobPart.stringPart,
+                _ => blobPart.blobPart?.JSReference
+            })
+            .ToArray();
+        IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFile", jsFileBits, fileName, options);
+        return new File(jSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
@@ -31,7 +53,7 @@ public class File : Blob
     /// <returns>The file name.</returns>
     public async Task<string> GetNameAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<string>("getAttribute", JSReference, "name");
     }
 
@@ -41,7 +63,7 @@ public class File : Blob
     /// <returns>A new <see cref="DateTime"/> object representing when the file was last modified.</returns>
     public async Task<DateTime> GetLastModifiedAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return DateTime.UnixEpoch.AddMilliseconds(await helper.InvokeAsync<long>("getAttribute", JSReference, "lastModified"));
     }
 }

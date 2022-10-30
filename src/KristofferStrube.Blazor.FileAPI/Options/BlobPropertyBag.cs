@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.FileAPI.Enums;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.FileAPI;
 

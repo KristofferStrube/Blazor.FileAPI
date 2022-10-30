@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace KristofferStrube.Blazor.FileAPI.Enums;
+namespace KristofferStrube.Blazor.FileAPI;
 
 [JsonConverter(typeof(EnumDescriptionConverter<EndingType>))]
 public enum EndingType
