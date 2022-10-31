@@ -1,5 +1,4 @@
-﻿using KristofferStrube.Blazor.Streams;
-using Microsoft.JSInterop;
+﻿using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 

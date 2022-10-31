@@ -62,13 +62,13 @@ public class FileReader : BaseJSWrapper
         await JSReference.InvokeVoidAsync("abort", blob.JSReference);
     }
 
-    const ushort EMPTY = 0;
-    const ushort LOADING = 1;
-    const ushort DONE = 2;
+    public const ushort EMPTY = 0;
+    public const ushort LOADING = 1;
+    public const ushort DONE = 2;
 
     public async Task<ushort> GetReadyStateAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ushort>("readyState");
     }
 }

@@ -16,19 +16,19 @@ public class ProgressEvent : BaseJSWrapper
 
     public async Task<bool> GetLengthComputableAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<bool>("getAttribute", JSReference, "lengthComputable");
     }
 
     public async Task<ulong> GetLoadedAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "loaded");
     }
 
     public async Task<ulong> GetTotalAsync()
     {
-        var helper = await helperTask.Value;
+        IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<ulong>("getAttribute", JSReference, "total");
     }
 }
