@@ -30,7 +30,7 @@ public class FileInProcess : File
     /// <param name="fileName">The name of the new file.</param>
     /// <param name="options">Options for constructing the new Blob which includes MIME type, line endings, and last modified date.</param>
     /// <returns></returns>
-    public static new async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
+    public static new async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
         IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
         object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch

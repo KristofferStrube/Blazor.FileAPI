@@ -12,19 +12,30 @@ In this sample we download an image using the <code>HttpClient</code> and create
 Using the methods from the <code>URL</code> interface we construct a <code>Blob URL</code> for the image and use that as the source for the img-tag below.
 <br />
 <img src="@blobURL" style="max-width:100%; max-height:50vh;" />
+<br />
+file name: @file?.Name
+<br />
+last modified: @file?.LastModified
+<br />
+content type: @file?.Type
+
 
 @code {
     private string blobURL = "";
+    private FileInProcess? file;
 
     protected override async Task OnInitializedAsync()
     {
-        var mountainBytes = await HttpClient.GetByteArrayAsync("images/mountain.jpg");
-        var blob = await Blob.CreateAsync(
+        var imageName = "mountain.jpg";
+
+        var imageBytes = await HttpClient.GetByteArrayAsync($"images/{imageName}");
+        file = await FileInProcess.CreateAsync(
             JSRuntime,
-            blobParts: new BlobPart[] { new(mountainBytes) },
-            options: new() { Type = "image/png" }
+            fileBits: new BlobPart[] { new(imageBytes) },
+            fileName: imageName,
+            options: new() { Type = "image/png", LastModified = DateTime.Now }
         );
-        blobURL = await URL.CreateObjectURLAsync(blob);
+        blobURL = await URL.CreateObjectURLAsync(file);
     }
 
     public async ValueTask DisposeAsync()
