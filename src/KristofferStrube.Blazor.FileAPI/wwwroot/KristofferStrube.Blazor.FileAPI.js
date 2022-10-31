@@ -1,7 +1,6 @@
 export function getAttribute(object, attribute) { return object[attribute]; }
 
-export async function arrayBuffer(blob) {
-    var buffer = await blob.arrayBuffer();
+export async function arrayBuffer(buffer) {
     var bytes = new Uint8Array(buffer);
     return bytes;
 }

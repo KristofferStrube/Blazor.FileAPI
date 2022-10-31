@@ -67,6 +67,14 @@ public class Blob : BaseJSWrapper
         return await helper.InvokeAsync<string>("getAttribute", JSReference, "type");
     }
 
+    public async Task<Blob> SliceAsync(long? start = null, long? end = null, string? contentType = null)
+    {
+        start ??= 0;
+        end ??= (long)await GetSizeAsync();
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("slice", start, end, contentType);
+        return new Blob(jSRuntime, jSInstance);
+    }
+
     public async Task<ReadableStream> StreamAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
@@ -94,7 +102,8 @@ public class Blob : BaseJSWrapper
     /// <returns>All bytes in the blob.</returns>
     public async Task<byte[]> ArrayBufferAsync()
     {
+        IJSInProcessObjectReference jSInstance = await JSReference.InvokeAsync<IJSInProcessObjectReference>("arrayBuffer");
         IJSObjectReference helper = await helperTask.Value;
-        return await helper.InvokeAsync<byte[]>("arrayBuffer", JSReference);
+        return await helper.InvokeAsync<byte[]>("arrayBuffer", jSInstance);
     }
 }

@@ -1,0 +1,46 @@
+﻿@page "/Slice"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>FileAPI - Slice</PageTitle>
+
+<h2>Slicing a Blob</h2>
+Here we can see how we can slice a <code>Blob</code>. We construct a <code>Blob</code> with the numbers from 0 to 49 encoded as bytes.
+<br />
+<div>
+    <b>Slice(20, 30):</b> @slice20_30
+</div>
+<div>
+    <b>SliceAsync(end: 20):</b> @slice_end_10
+</div>
+<div>
+    <b>SliceAsync(start: 40):</b> @slice_start_40
+</div>
+<div>
+    <b>SliceAsync(10, 20, "text/csv"):</b> @slice_start_40 with content type @slice10_20ContentType
+</div>
+
+
+@code {
+    string slice20_30 = "";
+    string slice_end_10 = "";
+    string slice_start_40 = "";
+    string slice10_20 = "";
+    string slice10_20ContentType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var blob = await BlobInProcess.CreateAsync(
+            JSRuntime,
+            blobParts: new BlobPart[] { new(Enumerable.Range(0, 50).Select(i => (byte)i).ToArray()) },
+            options: new() { Type = "text/plain" }
+        );
+
+        slice20_30 = string.Join(",", (await (blob.Slice(20, 30)).ArrayBufferAsync()).Select(b => b.ToString()));
+        slice_end_10 = string.Join(",", (await (await blob.SliceAsync(end: 10)).ArrayBufferAsync()).Select(b => b.ToString()));
+        slice_start_40 = string.Join(",", (await (await blob.SliceAsync(start: 40)).ArrayBufferAsync()).Select(b => b.ToString()));
+
+        var slice = await blob.SliceAsync(10, 20, "text/csv");
+        slice10_20 = string.Join(",", (await slice.ArrayBufferAsync()).Select(b => b.ToString()));
+        slice10_20ContentType = await slice.GetTypeAsync();
+    }
+}

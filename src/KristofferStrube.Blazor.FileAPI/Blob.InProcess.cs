@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.Streams;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
@@ -66,4 +67,12 @@ public class BlobInProcess : Blob
     /// </summary>
     /// <returns>The MIME type of this blob.</returns>
     public string Type => inProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
+
+    public Blob Slice(long? start = null, long? end = null, string? contentType = null)
+    {
+        start ??= 0;
+        end ??= (long)Size;
+        IJSObjectReference jSInstance = JSReference.Invoke<IJSObjectReference>("slice", start, end, contentType);
+        return new Blob(jSRuntime, jSInstance);
+    }
 }
