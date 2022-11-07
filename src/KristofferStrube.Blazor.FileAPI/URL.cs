@@ -3,7 +3,7 @@
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#creating-revoking">Blob browser specs</see>
+/// <see href="https://www.w3.org/TR/FileAPI/#url">URL browser specs</see>
 /// </summary>
 public class URL
 {

@@ -1,5 +1,8 @@
 ﻿namespace KristofferStrube.Blazor.FileAPI;
 
+/// <summary>
+/// <see href="https://www.w3.org/TR/FileAPI/#typedefdef-blobpart">BlobPart browser specs</see>
+/// </summary>
 public class BlobPart
 {
     internal readonly byte[]? byteArrayPart;

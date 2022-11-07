@@ -2,6 +2,9 @@
 
 namespace KristofferStrube.Blazor.FileAPI;
 
+/// <summary>
+/// <see href="https://www.w3.org/TR/FileAPI/#dfn-FilePropertyBag">FilePropertyBag browser specs</see>
+/// </summary>
 public class FilePropertyBag : BlobPropertyBag
 {
     /// <summary>

@@ -3,7 +3,7 @@
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://xhr.spec.whatwg.org/#progressevent">File browser specs</see>
+/// <see href="https://xhr.spec.whatwg.org/#progressevent">ProgressEvent browser specs</see>
 /// </summary>
 public class ProgressEvent : BaseJSWrapper
 {

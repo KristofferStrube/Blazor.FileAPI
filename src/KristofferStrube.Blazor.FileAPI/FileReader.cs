@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">File browser specs</see>
+/// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
 /// </summary>
 public class FileReader : BaseJSWrapper
 {
