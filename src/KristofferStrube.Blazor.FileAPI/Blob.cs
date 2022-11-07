@@ -67,6 +67,13 @@ public class Blob : BaseJSWrapper
         return await helper.InvokeAsync<string>("getAttribute", JSReference, "type");
     }
 
+    /// <summary>
+    /// Gets some range of the content of a <see cref="Blob"/> as a new <see cref="Blob"/>.
+    /// </summary>
+    /// <param name="start">The start index of the range. If <see langword="null"/> or negative then <c>0</c> is assumed.</param>
+    /// <param name="end">The start index of the range. If <see langword="null"/> or larger than the size of the original <see cref="Blob"/> then the size of the original <see cref="Blob"/> is assumed.</param>
+    /// <param name="contentType">An optional MIME type of the new <see cref="Blob"/>. If <see langword="null"/> then the MIME type of the original <see cref="Blob"/> is used.</param>
+    /// <returns>A new <see cref="Blob"/>.</returns>
     public async Task<Blob> SliceAsync(long? start = null, long? end = null, string? contentType = null)
     {
         start ??= 0;
@@ -75,12 +82,20 @@ public class Blob : BaseJSWrapper
         return new Blob(jSRuntime, jSInstance);
     }
 
+    /// <summary>
+    /// Creates a new <see cref="ReadableStream"/> from the <see cref="Blob"/>.
+    /// </summary>
+    /// <returns>A new wrapper for a <see cref="ReadableStream"/></returns>
     public async Task<ReadableStream> StreamAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
         return ReadableStream.Create(jSRuntime, jSInstance);
     }
 
+    /// <summary>
+    /// Creates a new <see cref="ReadableStreamInProcess"/> from the <see cref="Blob"/>.
+    /// </summary>
+    /// <returns>A new wrapper for a <see cref="ReadableStreamInProcess"/> which can access members and call non-promise methods synchronously.</returns>
     public async Task<ReadableStreamInProcess> StreamInProcessAsync()
     {
         IJSInProcessObjectReference jSInstance = await JSReference.InvokeAsync<IJSInProcessObjectReference>("stream");
