@@ -3,7 +3,7 @@
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://xhr.spec.whatwg.org/#progressevent">File browser specs</see>
+/// <see href="https://xhr.spec.whatwg.org/#progressevent">ProgressEvent browser specs</see>
 /// </summary>
 public class ProgressEventInProcess : ProgressEvent
 {
@@ -22,9 +22,21 @@ public class ProgressEventInProcess : ProgressEvent
         JSReference = jSReference;
     }
 
+    /// <summary>
+    /// Indicates whether the total can be calculated.
+    /// </summary>
+    /// <returns>A <see langword="bool"/> indicating if the total length was computable.</returns>
     public bool LengthComputable => inProcessHelper.Invoke<bool>("getAttribute", JSReference, "lengthComputable");
 
+    /// <summary>
+    /// The loaded number of bytes of the total.
+    /// </summary>
+    /// <returns>The length of the currently loaded part.</returns>
     public ulong Loaded => inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "loaded");
 
+    /// <summary>
+    /// The total number of bytes if it was computable else this is <c>0</c>.
+    /// </summary>
+    /// <returns>The total length of the read.</returns>
     public ulong Total => inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "total");
 }

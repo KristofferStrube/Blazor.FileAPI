@@ -10,10 +10,11 @@
 In this sample we download an image using the <code>HttpClient</code> and create a new <code>Blob</code> from that.
 We then use the methods of the <code>FileReader</code> interface to read the <code>Blob</code> in different ways and convert those different results to an image.
 <br />
-<div class="px-1 py-1">
+<div class="m-1">
     <button class="btn btn-primary" @onclick=ReadAsArrayBufferAsync>Read as byte array</button>
+    <button class="btn btn-primary" @onclick=ReadAsArrayBufferInProcessAsync>Read as byte array InProcess</button>
     <button class="btn btn-primary" @onclick=ReadAsBinaryStringAsync>Read as binary string</button>
-    <button class="btn btn-primary" @onclick=ReadAsTextAsync>Read as text</button>
+    <button class="btn btn-primary" @onclick=ReadAsText>Read as text</button>
     <button class="btn btn-primary" @onclick=ReadAsDataURLAsync>Read as data URL</button>
 </div>
 <textarea @bind=@log style="height:30vh;width:100%;">
@@ -24,7 +25,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
 @code {
     string log = "";
     private string imageUrl = "";
-    private Blob? blob;
+    private Blob blob;
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,6 +36,14 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             options: new() { Type = "image/png" }
         );
     }
+
+    private void GetProgress(ProgressEventInProcess eventArgs, string prepend)
+    {
+        var progress = eventArgs.LengthComputable ? $"({eventArgs.Loaded}/{eventArgs.Total})" : "";
+        log += $"{prepend}: {progress}\n";
+        StateHasChanged();
+    }
+
 
     private async Task GetProgressAsync(ProgressEvent eventArgs, string prepend)
     {
@@ -47,38 +56,55 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => GetProgressAsync(e, "OnError");
+        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
+        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
+        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
+        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
+        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
         fileReader.OnLoadEnd = async (e) =>
         {
-            imageUrl = "data:image/png;base64," + Convert.ToBase64String(await fileReader.GetResultAsByteArrayAsync());
-            GetProgressAsync(e, "OnLoadEnd");
+            imageUrl = "data:image/png;base64," + Convert.ToBase64String(await fileReader.GetResultAsByteArrayAsync() ?? new byte[0]);
+            await GetProgressAsync(e, "OnLoadEnd");
         };
         await fileReader.ReadAsArrayBufferAsync(blob);
+    }
+
+    public async Task ReadAsArrayBufferInProcessAsync()
+    {
+        log = "";
+        var fileReader = await FileReaderInProcess.CreateAsync(JSRuntime);
+        fileReader.OnLoadStart = (e) => GetProgress(e, "OnLoadStart");
+        fileReader.OnProgress = (e) => GetProgress(e, "OnProgress");
+        fileReader.OnLoad = (e) => GetProgress(e, "OnLoad");
+        fileReader.OnAbort = (e) => GetProgress(e, "OnAbort");
+        fileReader.OnError = (e) => GetProgress(e, "OnError");
+        fileReader.OnLoadEnd = (e) =>
+        {
+            imageUrl = "data:image/png;base64," + Convert.ToBase64String(fileReader.ResultAsByteArray ?? new byte[0]);
+            GetProgress(e, "OnLoadEnd");
+        };
+        fileReader.ReadAsArrayBuffer(blob);
     }
 
     public async Task ReadAsBinaryStringAsync()
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => GetProgressAsync(e, "OnError");
+        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
+        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
+        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
+        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
+        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
         fileReader.OnLoadEnd = async (e) =>
         {
-            var bytes = (await fileReader.GetResultAsStringAsync()).Select(c => (byte)c).ToArray();
+            var bytes = (await fileReader.GetResultAsStringAsync() ?? "").Select(c => (byte)c).ToArray();
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(bytes);
-            GetProgressAsync(e, "OnLoadEnd");
+            await GetProgressAsync(e, "OnLoadEnd");
         };
         await fileReader.ReadAsBinaryStringAsync(blob);
     }
 
-    public async Task ReadAsTextAsync()
+    public void ReadAsText()
     {
         log = "We can't read an image as text. ;)";
         imageUrl = "";
@@ -89,15 +115,15 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => GetProgressAsync(e, "OnError");
+        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
+        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
+        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
+        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
+        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
         fileReader.OnLoadEnd = async (e) =>
         {
-            imageUrl = await fileReader.GetResultAsStringAsync();
-            GetProgressAsync(e, "OnLoadEnd");
+            imageUrl = await fileReader.GetResultAsStringAsync() ?? "";
+            await GetProgressAsync(e, "OnLoadEnd");
         };
         await fileReader.ReadAsDataURLAsync(blob);
     }

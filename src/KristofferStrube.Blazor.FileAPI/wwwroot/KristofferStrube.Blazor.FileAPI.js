@@ -1,6 +1,6 @@
 export function getAttribute(object, attribute) { return object[attribute]; }
 
-export async function arrayBuffer(buffer) {
+export function arrayBuffer(buffer) {
     var bytes = new Uint8Array(buffer);
     return bytes;
 }
@@ -17,13 +17,22 @@ export function constructFileReader() {
     return new FileReader();
 }
 
-export function registerEventHandlers(fileReader, jSInstance) {
-    jSInstance.addEventListener('loadstart', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnLoadStart', DotNet.createJSObjectReference(e)));
-    jSInstance.addEventListener('progress', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnProgress', DotNet.createJSObjectReference(e)));
-    jSInstance.addEventListener('load', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnLoad', DotNet.createJSObjectReference(e)));
-    jSInstance.addEventListener('abort', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnAbort', DotNet.createJSObjectReference(e)));
-    jSInstance.addEventListener('error', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnError', DotNet.createJSObjectReference(e)));
-    jSInstance.addEventListener('loadend', (e) => fileReader.objRef.invokeMethodAsync('InvokeOnLoadEnd', DotNet.createJSObjectReference(e)));
+export function registerEventHandlersAsync(objRef, jSInstance) {
+    jSInstance.addEventListener('loadstart', (e) => objRef.invokeMethodAsync('InvokeOnLoadStartAsync', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('progress', (e) => objRef.invokeMethodAsync('InvokeOnProgressAsync', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('load', (e) => objRef.invokeMethodAsync('InvokeOnLoadAsync', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('abort', (e) => objRef.invokeMethodAsync('InvokeOnAbortAsync', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('error', (e) => objRef.invokeMethodAsync('InvokeOnErrorAsync', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('loadend', (e) => objRef.invokeMethodAsync('InvokeOnLoadEndAsync', DotNet.createJSObjectReference(e)));
+}
+
+export function registerEventHandlers(objRef, jSInstance) {
+    jSInstance.addEventListener('loadstart', (e) => objRef.invokeMethod('InvokeOnLoadStart', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('progress', (e) => objRef.invokeMethod('InvokeOnProgress', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('load', (e) => objRef.invokeMethod('InvokeOnLoad', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('abort', (e) => objRef.invokeMethod('InvokeOnAbort', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('error', (e) => objRef.invokeMethod('InvokeOnError', DotNet.createJSObjectReference(e)));
+    jSInstance.addEventListener('loadend', (e) => objRef.invokeMethod('InvokeOnLoadEnd', DotNet.createJSObjectReference(e)));
 }
 
 export function isArrayBuffer(fileReader) {

@@ -5,11 +5,15 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// <summary>
 /// <see href="https://www.w3.org/TR/FileAPI/#url">URL browser specs</see>
 /// </summary>
-public class URL
+public class URLService
 {
     private readonly IJSRuntime jSRuntime;
 
-    public URL(IJSRuntime jSRuntime)
+    /// <summary>
+    /// Constructs a <see cref="URLService"/> that can be used to access the partial part of the URL interface defined in the FileAPI definition.
+    /// </summary>
+    /// <param name="jSRuntime"></param>
+    public URLService(IJSRuntime jSRuntime)
     {
         this.jSRuntime = jSRuntime;
     }
