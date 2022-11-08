@@ -3,7 +3,7 @@
 [![GitHub forks](https://img.shields.io/github/forks/KristofferStrube/Blazor.FileAPI)](https://github.com/KristofferStrube/Blazor.FileAPI/network/members)
 [![GitHub stars](https://img.shields.io/github/stars/KristofferStrube/Blazor.FileAPI)](https://github.com/KristofferStrube/Blazor.FileAPI/stargazers)
 
-<!--[![NuGet Downloads (official NuGet)](https://img.shields.io/nuget/dt/KristofferStrube.Blazor.FileAPI?label=NuGet%20Downloads)](https://www.nuget.org/packages/KristofferStrube.Blazor.FileAPI/)  -->
+[![NuGet Downloads (official NuGet)](https://img.shields.io/nuget/dt/KristofferStrube.Blazor.FileAPI?label=NuGet%20Downloads)](https://www.nuget.org/packages/KristofferStrube.Blazor.FileAPI/)
 
 # Introduction
 A Blazor wrapper for the browser [File API](https://www.w3.org/TR/FileAPI/)
