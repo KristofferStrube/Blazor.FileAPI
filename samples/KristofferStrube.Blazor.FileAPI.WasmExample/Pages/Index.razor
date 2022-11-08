@@ -1,9 +1,9 @@
 ﻿@page "/"
-@implements IAsyncDisposable
+@implements IDisposable
 
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
-@inject URLService URL
+@inject IURLServiceInProcess URL
 
 <PageTitle>FileAPI - Index</PageTitle>
 
@@ -35,11 +35,11 @@ content type: @file?.Type
             fileName: imageName,
             options: new() { Type = "image/png", LastModified = DateTime.Now }
         );
-        blobURL = await URL.CreateObjectURLAsync(file);
+        blobURL = URL.CreateObjectURL(file);
     }
 
-    public async ValueTask DisposeAsync()
+    public void Dispose()
     {
-        await URL.RevokeObjectURLAsync(blobURL);
+        URL.RevokeObjectURL(blobURL);
     }
 }

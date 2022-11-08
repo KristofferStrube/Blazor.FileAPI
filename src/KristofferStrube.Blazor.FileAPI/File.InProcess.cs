@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.Streams;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
@@ -57,6 +58,16 @@ public class FileInProcess : File
     }
 
     /// <summary>
+    /// Creates a new <see cref="ReadableStreamInProcess"/> from the <see cref="Blob"/>.
+    /// </summary>
+    /// <returns>A new wrapper for a <see cref="ReadableStreamInProcess"/></returns>
+    public new async Task<ReadableStreamInProcess> StreamAsync()
+    {
+        IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
+        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
+    }
+
+    /// <summary>
     /// The size of this blob.
     /// </summary>
     /// <returns>A <see langword="ulong"/> representing the size of the blob in bytes.</returns>
@@ -67,6 +78,21 @@ public class FileInProcess : File
     /// </summary>
     /// <returns>The MIME type of this blob.</returns>
     public string Type => inProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
+
+    /// <summary>
+    /// Gets some range of the content of a <see cref="Blob"/> as a new <see cref="Blob"/>.
+    /// </summary>
+    /// <param name="start">The start index of the range. If <see langword="null"/> or negative then <c>0</c> is assumed.</param>
+    /// <param name="end">The start index of the range. If <see langword="null"/> or larger than the size of the original <see cref="Blob"/> then the size of the original <see cref="Blob"/> is assumed.</param>
+    /// <param name="contentType">An optional MIME type of the new <see cref="Blob"/>. If <see langword="null"/> then the MIME type of the original <see cref="Blob"/> is used.</param>
+    /// <returns>A new <see cref="BlobInProcess"/>.</returns>
+    public BlobInProcess Slice(long? start = null, long? end = null, string? contentType = null)
+    {
+        start ??= 0;
+        end ??= (long)Size;
+        IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("slice", start, end, contentType);
+        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance);
+    }
 
     /// <summary>
     /// The name of the file including file extension.

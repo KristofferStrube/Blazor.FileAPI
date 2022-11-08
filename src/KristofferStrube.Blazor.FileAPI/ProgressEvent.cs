@@ -23,7 +23,7 @@ public class ProgressEvent : BaseJSWrapper
         IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<bool>("getAttribute", JSReference, "lengthComputable");
     }
-    
+
     /// <summary>
     /// The loaded number of bytes of the total.
     /// </summary>

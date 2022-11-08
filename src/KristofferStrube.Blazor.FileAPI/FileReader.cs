@@ -28,7 +28,7 @@ public class FileReader : BaseJSWrapper
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFileReader");
-        var fileReader = new FileReader(jSRuntime, jSInstance);
+        FileReader fileReader = new FileReader(jSRuntime, jSInstance);
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSInstance);
         return fileReader;
     }
@@ -112,7 +112,7 @@ public class FileReader : BaseJSWrapper
     public async Task<Type?> GetResultTypeAsync()
     {
         IJSObjectReference helper = await helperTask.Value;
-        var isArrayBuffer = await helper.InvokeAsync<bool>("isArrayBuffer", JSReference);
+        bool isArrayBuffer = await helper.InvokeAsync<bool>("isArrayBuffer", JSReference);
         return isArrayBuffer ? typeof(byte[]) : typeof(string);
     }
 
@@ -133,7 +133,7 @@ public class FileReader : BaseJSWrapper
     public async Task<byte[]?> GetResultAsByteArrayAsync()
     {
         IJSObjectReference helper = await helperTask.Value;
-        var jSResult = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "result");
+        IJSObjectReference jSResult = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "result");
         return await helper.InvokeAsync<byte[]?>("arrayBuffer", jSResult);
     }
 
@@ -186,42 +186,66 @@ public class FileReader : BaseJSWrapper
     [JSInvokable]
     public async Task InvokeOnLoadStartAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnLoadStart is null) return;
+        if (OnLoadStart is null)
+        {
+            return;
+        }
+
         await OnLoadStart.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 
     [JSInvokable]
     public async Task InvokeOnProgressAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnProgress is null) return;
+        if (OnProgress is null)
+        {
+            return;
+        }
+
         await OnProgress.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 
     [JSInvokable]
     public async Task InvokeOnLoadAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnLoad is null) return;
+        if (OnLoad is null)
+        {
+            return;
+        }
+
         await OnLoad.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 
     [JSInvokable]
     public async Task InvokeOnAbortAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnAbort is null) return;
+        if (OnAbort is null)
+        {
+            return;
+        }
+
         await OnAbort.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 
     [JSInvokable]
     public async Task InvokeOnErrorAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnError is null) return;
+        if (OnError is null)
+        {
+            return;
+        }
+
         await OnError.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 
     [JSInvokable]
     public async Task InvokeOnLoadEndAsync(IJSObjectReference jsProgressEvent)
     {
-        if (OnLoadEnd is null) return;
+        if (OnLoadEnd is null)
+        {
+            return;
+        }
+
         await OnLoadEnd.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
     }
 }

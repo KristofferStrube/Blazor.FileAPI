@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.Streams;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
@@ -35,8 +36,8 @@ public class BlobInProcess : Blob
         object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
             {
                 BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.stringPart,
-                _ => blobPart.blobPart?.JSReference
+                BlobPartType.Blob => blobPart.blobPart?.JSReference,
+                _ => blobPart.stringPart
             })
             .ToArray();
         IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructBlob", jsBlobParts, options);
@@ -53,6 +54,16 @@ public class BlobInProcess : Blob
     {
         this.inProcessHelper = inProcessHelper;
         JSReference = jSReference;
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="ReadableStreamInProcess"/> from the <see cref="Blob"/>.
+    /// </summary>
+    /// <returns>A new wrapper for a <see cref="ReadableStreamInProcess"/></returns>
+    public new async Task<ReadableStreamInProcess> StreamAsync()
+    {
+        IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
+        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
     }
 
     /// <summary>
@@ -73,12 +84,12 @@ public class BlobInProcess : Blob
     /// <param name="start">The start index of the range. If <see langword="null"/> or negative then <c>0</c> is assumed.</param>
     /// <param name="end">The start index of the range. If <see langword="null"/> or larger than the size of the original <see cref="Blob"/> then the size of the original <see cref="Blob"/> is assumed.</param>
     /// <param name="contentType">An optional MIME type of the new <see cref="Blob"/>. If <see langword="null"/> then the MIME type of the original <see cref="Blob"/> is used.</param>
-    /// <returns>A new <see cref="Blob"/>.</returns>
-    public Blob Slice(long? start = null, long? end = null, string? contentType = null)
+    /// <returns>A new <see cref="BlobInProcess"/>.</returns>
+    public BlobInProcess Slice(long? start = null, long? end = null, string? contentType = null)
     {
         start ??= 0;
         end ??= (long)Size;
-        IJSObjectReference jSInstance = JSReference.Invoke<IJSObjectReference>("slice", start, end, contentType);
-        return new Blob(jSRuntime, jSInstance);
+        IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("slice", start, end, contentType);
+        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance);
     }
 }

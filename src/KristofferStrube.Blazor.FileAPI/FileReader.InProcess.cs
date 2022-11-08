@@ -31,7 +31,7 @@ public class FileReaderInProcess : FileReader
     {
         IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
         IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructFileReader");
-        var fileReaderInProcess = new FileReaderInProcess(jSRuntime, inProcesshelper, jSInstance);
+        FileReaderInProcess fileReaderInProcess = new FileReaderInProcess(jSRuntime, inProcesshelper, jSInstance);
         await inProcesshelper.InvokeVoidAsync("registerEventHandlers", DotNetObjectReference.Create(fileReaderInProcess), jSInstance);
         return fileReaderInProcess;
     }
@@ -167,42 +167,66 @@ public class FileReaderInProcess : FileReader
     [JSInvokable]
     public void InvokeOnLoadStart(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnLoadStart is null) return;
+        if (OnLoadStart is null)
+        {
+            return;
+        }
+
         OnLoadStart.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 
     [JSInvokable]
     public void InvokeOnProgress(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnProgress is null) return;
+        if (OnProgress is null)
+        {
+            return;
+        }
+
         OnProgress.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 
     [JSInvokable]
     public void InvokeOnLoad(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnLoad is null) return;
+        if (OnLoad is null)
+        {
+            return;
+        }
+
         OnLoad.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 
     [JSInvokable]
     public void InvokeOnAbort(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnAbort is null) return;
+        if (OnAbort is null)
+        {
+            return;
+        }
+
         OnAbort.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 
     [JSInvokable]
     public void InvokeOnError(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnError is null) return;
+        if (OnError is null)
+        {
+            return;
+        }
+
         OnError.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 
     [JSInvokable]
     public void InvokeOnLoadEnd(IJSInProcessObjectReference jsProgressEvent)
     {
-        if (OnLoadEnd is null) return;
+        if (OnLoadEnd is null)
+        {
+            return;
+        }
+
         OnLoadEnd.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
     }
 }

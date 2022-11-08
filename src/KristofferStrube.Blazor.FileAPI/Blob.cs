@@ -32,8 +32,8 @@ public class Blob : BaseJSWrapper
         object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
             {
                 BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.stringPart,
-                _ => blobPart.blobPart?.JSReference
+                BlobPartType.Blob => blobPart.blobPart?.JSReference,
+                _ => blobPart.stringPart
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
@@ -90,16 +90,6 @@ public class Blob : BaseJSWrapper
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
         return ReadableStream.Create(jSRuntime, jSInstance);
-    }
-
-    /// <summary>
-    /// Creates a new <see cref="ReadableStreamInProcess"/> from the <see cref="Blob"/>.
-    /// </summary>
-    /// <returns>A new wrapper for a <see cref="ReadableStreamInProcess"/> which can access members and call non-promise methods synchronously.</returns>
-    public async Task<ReadableStreamInProcess> StreamInProcessAsync()
-    {
-        IJSInProcessObjectReference jSInstance = await JSReference.InvokeAsync<IJSInProcessObjectReference>("stream");
-        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
     }
 
     /// <summary>
