@@ -77,11 +77,11 @@ If you have an `IJSObjectReference` or an `IJSInProcessObjectReference` for a ty
 ```csharp
 // Blazor Server compatible.
 IJSObjectReference jSFile; // JS Reference from other package or your own JSInterop.
-File file = File.Create(JSRuntime, jSFile)
+File file = File.Create(JSRuntime, jSFile);
 
 // InProcess only supported in Blazor WebAssembly.
 IJSInProcessObjectReference jSFileInProcess; // JS Reference from other package or your own JSInterop.
-FileInProcess fileInProcess = await File.CreateAsync(JSRuntime, jSFileInProcess)
+FileInProcess fileInProcess = await File.CreateAsync(JSRuntime, jSFileInProcess);
 ```
 
 ## Add to service collection
