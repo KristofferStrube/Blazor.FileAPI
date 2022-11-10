@@ -19,8 +19,8 @@ public class FileInProcess : File
     /// <returns>A wrapper instance for a <see cref="File"/>.</returns>
     public static async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference)
     {
-        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
-        return new FileInProcess(jSRuntime, inProcesshelper, jSReference);
+        IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
+        return new FileInProcess(jSRuntime, inProcessHelper, jSReference);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class FileInProcess : File
     /// <returns></returns>
     public static new async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
-        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
+        IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
         object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch
             {
                 BlobPartType.BufferSource => blobPart.byteArrayPart,
@@ -41,8 +41,8 @@ public class FileInProcess : File
                 _ => blobPart.blobPart?.JSReference
             })
             .ToArray();
-        IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructFile", jsFileBits, fileName, options);
-        return new FileInProcess(jSRuntime, inProcesshelper, jSInstance);
+        IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructFile", jsFileBits, fileName, options);
+        return new FileInProcess(jSRuntime, inProcessHelper, jSInstance);
     }
 
     /// <summary>

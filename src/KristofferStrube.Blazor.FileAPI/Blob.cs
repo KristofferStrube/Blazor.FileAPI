@@ -107,7 +107,7 @@ public class Blob : BaseJSWrapper
     /// <returns>All bytes in the blob.</returns>
     public async Task<byte[]> ArrayBufferAsync()
     {
-        IJSInProcessObjectReference jSInstance = await JSReference.InvokeAsync<IJSInProcessObjectReference>("arrayBuffer");
+        IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("arrayBuffer");
         IJSObjectReference helper = await helperTask.Value;
         return await helper.InvokeAsync<byte[]>("arrayBuffer", jSInstance);
     }

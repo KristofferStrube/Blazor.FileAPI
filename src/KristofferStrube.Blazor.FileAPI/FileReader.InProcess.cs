@@ -18,8 +18,8 @@ public class FileReaderInProcess : FileReader
     /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
     public static async Task<FileReaderInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference)
     {
-        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
-        return new FileReaderInProcess(jSRuntime, inProcesshelper, jSReference);
+        IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
+        return new FileReaderInProcess(jSRuntime, inProcessHelper, jSReference);
     }
 
     /// <summary>
@@ -29,10 +29,10 @@ public class FileReaderInProcess : FileReader
     /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
     public static new async Task<FileReaderInProcess> CreateAsync(IJSRuntime jSRuntime)
     {
-        IJSInProcessObjectReference inProcesshelper = await jSRuntime.GetInProcessHelperAsync();
-        IJSInProcessObjectReference jSInstance = await inProcesshelper.InvokeAsync<IJSInProcessObjectReference>("constructFileReader");
-        FileReaderInProcess fileReaderInProcess = new FileReaderInProcess(jSRuntime, inProcesshelper, jSInstance);
-        await inProcesshelper.InvokeVoidAsync("registerEventHandlers", DotNetObjectReference.Create(fileReaderInProcess), jSInstance);
+        IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
+        IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructFileReader");
+        FileReaderInProcess fileReaderInProcess = new FileReaderInProcess(jSRuntime, inProcessHelper, jSInstance);
+        await inProcessHelper.InvokeVoidAsync("registerEventHandlers", DotNetObjectReference.Create(fileReaderInProcess), jSInstance);
         return fileReaderInProcess;
     }
 
