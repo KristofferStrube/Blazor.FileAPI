@@ -25,14 +25,14 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
 @code {
     string log = "";
     private string imageUrl = "";
-    private Blob blob;
+    private Blob? blob;
 
     protected override async Task OnInitializedAsync()
     {
         var imageBytes = await HttpClient.GetByteArrayAsync($"images/mountain.jpg");
         blob = await Blob.CreateAsync(
             JSRuntime,
-            blobParts: new BlobPart[] { new(imageBytes) },
+            blobParts: new BlobPart[] { imageBytes },
             options: new() { Type = "image/png" }
         );
     }
@@ -66,7 +66,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(await fileReader.GetResultAsByteArrayAsync() ?? new byte[0]);
             await GetProgressAsync(e, "OnLoadEnd");
         };
-        await fileReader.ReadAsArrayBufferAsync(blob);
+        await fileReader.ReadAsArrayBufferAsync(blob!);
     }
 
     public async Task ReadAsArrayBufferInProcessAsync()
@@ -83,7 +83,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(fileReader.ResultAsByteArray ?? new byte[0]);
             GetProgress(e, "OnLoadEnd");
         };
-        fileReader.ReadAsArrayBuffer(blob);
+        fileReader.ReadAsArrayBuffer(blob!);
     }
 
     public async Task ReadAsBinaryStringAsync()
@@ -101,7 +101,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(bytes);
             await GetProgressAsync(e, "OnLoadEnd");
         };
-        await fileReader.ReadAsBinaryStringAsync(blob);
+        await fileReader.ReadAsBinaryStringAsync(blob!);
     }
 
     public void ReadAsText()
@@ -125,6 +125,6 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             imageUrl = await fileReader.GetResultAsStringAsync() ?? "";
             await GetProgressAsync(e, "OnLoadEnd");
         };
-        await fileReader.ReadAsDataURLAsync(blob);
+        await fileReader.ReadAsDataURLAsync(blob!);
     }
 }

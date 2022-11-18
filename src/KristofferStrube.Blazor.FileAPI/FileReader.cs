@@ -14,9 +14,12 @@ public class FileReader : BaseJSWrapper
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="FileReader"/>.</param>
     /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
-    public static FileReader Create(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return new FileReader(jSRuntime, jSReference);
+        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        FileReader fileReader = new(jSRuntime, jSReference);
+        await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSReference);
+        return fileReader;
     }
 
     /// <summary>
@@ -28,7 +31,7 @@ public class FileReader : BaseJSWrapper
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFileReader");
-        FileReader fileReader = new FileReader(jSRuntime, jSInstance);
+        FileReader fileReader = new(jSRuntime, jSInstance);
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSInstance);
         return fileReader;
     }

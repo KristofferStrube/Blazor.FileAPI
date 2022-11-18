@@ -31,7 +31,7 @@ content type: @file?.Type
         var imageBytes = await HttpClient.GetByteArrayAsync($"images/{imageName}");
         file = await FileInProcess.CreateAsync(
             JSRuntime,
-            fileBits: new BlobPart[] { new(imageBytes) },
+            fileBits: new BlobPart[] { imageBytes },
             fileName: imageName,
             options: new() { Type = "image/png", LastModified = DateTime.Now }
         );

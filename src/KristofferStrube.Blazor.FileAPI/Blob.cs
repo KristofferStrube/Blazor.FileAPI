@@ -29,11 +29,11 @@ public class Blob : BaseJSWrapper
     public static async Task<Blob> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
+        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.Part switch
             {
-                BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.blobPart?.JSReference,
-                _ => blobPart.stringPart
+                byte[] part => part,
+                Blob part => part.JSReference,
+                _ => blobPart.Part
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);

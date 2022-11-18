@@ -30,7 +30,7 @@ Here we can see how we can slice a <code>Blob</code>. We construct a <code>Blob<
     {
         var blob = await BlobInProcess.CreateAsync(
             JSRuntime,
-            blobParts: new BlobPart[] { new(Enumerable.Range(0, 50).Select(i => (byte)i).ToArray()) },
+            blobParts: new BlobPart[] { Enumerable.Range(0, 50).Select(i => (byte)i).ToArray() },
             options: new() { Type = "text/plain" }
         );
 

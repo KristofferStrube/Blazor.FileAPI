@@ -34,11 +34,11 @@ public class FileInProcess : File
     public static new async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch
+        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.Part switch
             {
-                BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.stringPart,
-                _ => blobPart.blobPart?.JSReference
+                byte[] part => part,
+                Blob part => part.JSReference,
+                _ => blobPart.Part
             })
             .ToArray();
         IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructFile", jsFileBits, fileName, options);

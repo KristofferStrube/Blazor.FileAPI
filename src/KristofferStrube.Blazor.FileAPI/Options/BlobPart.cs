@@ -1,37 +1,45 @@
-﻿namespace KristofferStrube.Blazor.FileAPI;
+﻿using System.Runtime.Serialization;
+
+namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
 /// <see href="https://www.w3.org/TR/FileAPI/#typedefdef-blobpart">BlobPart browser specs</see>
 /// </summary>
 public class BlobPart
 {
-    internal readonly byte[]? byteArrayPart;
-    internal readonly Blob? blobPart;
-    internal readonly string? stringPart;
-    internal readonly BlobPartType type;
+    internal readonly object Part;
 
+    internal BlobPart(object part)
+    {
+        Part = part;
+    }
+    [Obsolete("We added implicit converters from byte[] to BlobPart so you can parse it directly without using this constructor first.")]
     public BlobPart(byte[] part)
     {
-        byteArrayPart = part;
-        type = BlobPartType.BufferSource;
+        Part = part;
     }
-
+    [Obsolete("We added implicit converters from Blob to BlobPart so you can parse it directly without using this constructor first.")]
     public BlobPart(Blob part)
     {
-        blobPart = part;
-        type = BlobPartType.Blob;
+        Part = part;
     }
-
+    [Obsolete("We added implicit converters from string to BlobPart so you can parse it directly without using this constructor first.")]
     public BlobPart(string part)
     {
-        stringPart = part;
-        type = BlobPartType.String;
+        Part = part;
     }
-}
 
-internal enum BlobPartType
-{
-    BufferSource,
-    Blob,
-    String
+
+    public static implicit operator BlobPart(byte[] part)
+    {
+        return new((object)part);
+    }
+    public static implicit operator BlobPart(Blob part)
+    {
+        return new((object)part);
+    }
+    public static implicit operator BlobPart(string part)
+    {
+        return new((object)part);
+    }
 }

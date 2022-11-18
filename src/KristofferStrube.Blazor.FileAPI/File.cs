@@ -29,11 +29,11 @@ public class File : Blob
     public static async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.type switch
+        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.Part switch
             {
-                BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.stringPart,
-                _ => blobPart.blobPart?.JSReference
+                byte[] part => part,
+                Blob part => part.JSReference,
+                _ => blobPart.Part
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFile", jsFileBits, fileName, options);

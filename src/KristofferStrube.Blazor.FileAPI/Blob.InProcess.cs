@@ -33,11 +33,11 @@ public class BlobInProcess : Blob
     public static new async Task<BlobInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
     {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.type switch
+        object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.Part switch
             {
-                BlobPartType.BufferSource => blobPart.byteArrayPart,
-                BlobPartType.Blob => blobPart.blobPart?.JSReference,
-                _ => blobPart.stringPart
+                byte[] part => part,
+                Blob part => part.JSReference,
+                _ => blobPart.Part
             })
             .ToArray();
         IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructBlob", jsBlobParts, options);

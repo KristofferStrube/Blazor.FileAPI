@@ -44,8 +44,8 @@ An example could be to create an instance of a `Blob` that contains the text `"H
 Blob blob = await Blob.CreateAsync(
     JSRuntime,
     blobParts: new BlobPart[] {
-        new("Hello "),
-        new(new byte[] { 0X57, 0X6f, 0X72, 0X6c, 0X64, 0X21 })
+        "Hello ",
+        new byte[] { 0X57, 0X6f, 0X72, 0X6c, 0X64, 0X21 }
     },
     options: new() { Type = "text/plain" }
 );
@@ -60,8 +60,8 @@ All creator methods take an `IJSRuntime` instance as the first parameter. The ab
 BlobInProcess blob = await BlobInProcess.CreateAsync(
     JSRuntime,
     blobParts: new BlobPart[] {
-        new("Hello "),
-        new(new byte[] { 0X57, 0X6f, 0X72, 0X6c, 0X64, 0X21 })
+        "Hello ",
+        new byte[] { 0X57, 0X6f, 0X72, 0X6c, 0X64, 0X21 }
     },
     options: new() { Type = "text/plain" }
 );
