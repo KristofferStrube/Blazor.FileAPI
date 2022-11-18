@@ -127,13 +127,11 @@ You can likewise add the `InProcess` variant of the service (`IURLServiceInProce
 Feel free to open issues on the repository if you find any errors with the package or have wishes for features.
 
 # Related repositories
-This project uses this package to return a rich `ReadableStream` from the `StreamAsync` method on a `Blob`.
+This project uses the *Blazor.Streams* package to return a rich `ReadableStream` from the `StreamAsync` method on a `Blob`.
 - https://github.com/KristofferStrube/Blazor.Streams
 
-This project is going to be used in this package to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`.
+This project is going to be used in the *Blazor.FileSystemAccess* package to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`.
 - https://github.com/KristofferStrube/Blazor.FileSystemAccess
-
-This project uses a combination of the two styles present in the two above packages which both eventually will go more towards the style present in this project.
 
 # Related articles
 This repository was build with inspiration and help from the following series of articles:
