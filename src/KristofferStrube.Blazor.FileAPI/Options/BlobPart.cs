@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace KristofferStrube.Blazor.FileAPI;
+﻿namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
 /// <see href="https://www.w3.org/TR/FileAPI/#typedefdef-blobpart">BlobPart browser specs</see>
