@@ -41,6 +41,12 @@
         }
     </script>
 
+    <script>
+        function hugeBlob() { return new Blob([JSON.stringify(new Array(10_000_000))]); }
+
+        function getAttribute(object, attribute) { return object[attribute]; }
+    </script>
+
     <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="css/app.css" rel="stylesheet" />
     <link rel="icon" type="image/png" href="favicon.png" />

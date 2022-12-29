@@ -1,0 +1,50 @@
+﻿@page "/StreamLargeBlob"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>FileAPI - Stream Large Blob</PageTitle>
+
+<h2>Streaming a large Blob</h2>
+A common problem that people face when working with files is that they can be very big.
+This is especially a problem if you want to read them in Blazor Server where there is a limit on the size of messages that can be sent over SignalR.
+<br />
+This sample will illustrate stream reading a large Blob to .NET using the inbuilt <code>stream()</code> method available on a <code>Blob</code>.
+<br />
+<br />
+<ol>
+    <li>We have created a method in JS called <code>hugeBlob()</code> which creates a huge object in the form of a large empty array, serialized to a JSON string, and then parsed into the <code>Blob</code> constructor.</li>
+    <li>We construct a wrapper around the JS object reference <i>(jSBlob)</i> by calling <code>Blob.Create(JSRuntime, jSBlob)</code>.</li>
+    <li>We get a <code>ReadableStream</code> from the Blob by calling <coded>await blob.StreamAsync()</coded>.</li>
+    <li>We get the default reader of the stream by calling <code>await stream.GetDefaultReaderAsync()</code>.</li>
+    <li>We iterate the chunks of the reader and append the chunk to our result. Below you can see chunk sizes read and the length of the result that has been built.</li>
+</ol>
+
+<b>Last Read Lengths:</b> @string.Join(", ", readLengths)
+<br />
+<b>Accumulatively Result Length:</b> @result.Length characters
+
+@code {
+    private string result = "";
+    private List<int> readLengths = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var jSBlob = await JSRuntime.InvokeAsync<IJSObjectReference>("hugeBlob");
+
+        var blob = Blob.Create(JSRuntime, jSBlob);
+
+        var stream = await blob.StreamAsync();
+
+        var reader = await stream.GetDefaultReaderAsync();
+
+        await foreach (var chunk in reader.IterateStringsAsync())
+        {
+            if (chunk is null) break;
+            readLengths.Add(chunk.Length);
+            result += chunk;
+            StateHasChanged();
+            await Task.Delay(100);
+        }
+    }
+}
