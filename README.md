@@ -130,7 +130,7 @@ Feel free to open issues on the repository if you find any errors with the packa
 This project uses the *Blazor.Streams* package to return a rich `ReadableStream` from the `StreamAsync` method on a `Blob`.
 - https://github.com/KristofferStrube/Blazor.Streams
 
-This project is going to be used in the *Blazor.FileSystemAccess* package to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`.
+This project is used in the *Blazor.FileSystem* package to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`.
 - https://github.com/KristofferStrube/Blazor.FileSystemAccess
 
 # Related articles
