@@ -89,7 +89,7 @@ public class Blob : BaseJSWrapper
     public async Task<ReadableStream> StreamAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
-        return ReadableStream.Create(jSRuntime, jSInstance);
+        return await ReadableStream.CreateAsync(jSRuntime, jSInstance);
     }
 
     /// <summary>
