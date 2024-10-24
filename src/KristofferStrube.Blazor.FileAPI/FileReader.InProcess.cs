@@ -239,4 +239,12 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
 
         OnLoadEnd.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

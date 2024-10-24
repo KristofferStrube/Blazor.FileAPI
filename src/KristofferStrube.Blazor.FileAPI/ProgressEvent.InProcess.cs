@@ -53,4 +53,12 @@ public class ProgressEventInProcess : ProgressEvent, IJSInProcessCreatable<Progr
     /// </summary>
     /// <returns>The total length of the read.</returns>
     public ulong Total => InProcessHelper.Invoke<ulong>("getAttribute", JSReference, "total");
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

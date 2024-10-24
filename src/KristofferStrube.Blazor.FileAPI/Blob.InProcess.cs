@@ -95,4 +95,12 @@ public class BlobInProcess : Blob, IJSInProcessCreatable<BlobInProcess, Blob>
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("slice", start, end, contentType);
         return new BlobInProcess(JSRuntime, InProcessHelper, jSInstance, new() { DisposesJSReference = true });
     }
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

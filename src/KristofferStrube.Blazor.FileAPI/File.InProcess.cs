@@ -108,4 +108,12 @@ public class FileInProcess : File, IJSInProcessCreatable<FileInProcess, File>
     /// </summary>
     /// <returns>A new <see cref="DateTime"/> object representing when the file was last modified.</returns>
     public DateTime LastModified => DateTime.UnixEpoch.AddMilliseconds(InProcessHelper.Invoke<ulong>("getAttribute", JSReference, "lastModified"));
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }
