@@ -32,11 +32,11 @@ This sample will illustrate stream reading a large Blob to .NET using the inbuil
 
         var jSBlob = await JSRuntime.InvokeAsync<IJSObjectReference>("hugeBlob");
 
-        var blob = Blob.Create(JSRuntime, jSBlob);
+        await using var blob = await Blob.CreateAsync(JSRuntime, jSBlob);
 
-        var stream = await blob.StreamAsync();
+        await using var stream = await blob.StreamAsync();
 
-        var reader = await stream.GetDefaultReaderAsync();
+        await using var reader = await stream.GetDefaultReaderAsync();
 
         await foreach (var chunk in reader.IterateStringsAsync())
         {

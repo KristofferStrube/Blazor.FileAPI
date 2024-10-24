@@ -1,5 +1,6 @@
 ﻿@page "/FileReaderSample"
 @using System.Text
+@implements IAsyncDisposable
 
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
@@ -126,5 +127,13 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
             await GetProgressAsync(e, "OnLoadEnd");
         };
         await fileReader.ReadAsDataURLAsync(blob!);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (blob is not null)
+        {
+            await blob.DisposeAsync();
+        }
     }
 }
