@@ -163,6 +163,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// Gets the error object reference which will be <see langword="null"/> if no error occured.
     /// </summary>
     /// <returns>A nullable IJSObjectReference because it was out of scope to wrap the Exception API.</returns>
+    // TODO: This should return actual error object from Blazor.WebIDL.
     public async Task<IJSObjectReference?> GetErrorAsync()
     {
         IJSObjectReference helper = await fileApiHelperTask.Value;
@@ -172,40 +173,47 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <summary>
     /// Invoked when a load starts.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadStartEventListenerAsync and RemoveOnLoadStartEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoadStart { get; set; }
 
     /// <summary>
     /// Invoked when the progress of a load changes which includes when it ends.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnProgressEventListenerAsync and RemoveOnProgressEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnProgress { get; set; }
 
     /// <summary>
     /// Invoked when a load ends successfully.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadEventListenerAsync and RemoveOnLoadEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoad { get; set; }
 
     /// <summary>
     /// Invoked when a load is aborted.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnAbortEventListenerAsync and RemoveOnAbortEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnAbort { get; set; }
 
     /// <summary>
     /// Invoked when a load fails due to an error.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnErrorEventListenerAsync and RemoveOnErrorEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnError { get; set; }
 
     /// <summary>
     /// Invoked when a load finishes successfully or not.
     /// </summary>
+    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadEndEventListenerAsync and RemoveOnLoadEndEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoadEnd { get; set; }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnLoadStartAsync(IJSObjectReference jsProgressEvent)
     {
@@ -217,7 +225,8 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         await OnLoadStart.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnProgressAsync(IJSObjectReference jsProgressEvent)
     {
@@ -229,7 +238,8 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         await OnProgress.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnLoadAsync(IJSObjectReference jsProgressEvent)
     {
@@ -241,7 +251,8 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         await OnLoad.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnAbortAsync(IJSObjectReference jsProgressEvent)
     {
@@ -253,7 +264,8 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         await OnAbort.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnErrorAsync(IJSObjectReference jsProgressEvent)
     {
@@ -265,7 +277,8 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         await OnError.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public async Task InvokeOnLoadEndAsync(IJSObjectReference jsProgressEvent)
     {
@@ -275,6 +288,126 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
         }
 
         await OnLoadEnd.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when a load is started.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnLoadStartEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("loadstart", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadStartEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnLoadStartEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("loadstart", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when the progress of a load changes which includes when it ends.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnProgressEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("progress", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnProgressEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnProgressEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("progress", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when a load ends successfully.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnLoadEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("load", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnLoadEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("load", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when a load is aborted.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnAbortEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("abort", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnAbortEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnAbortEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("abort", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when a load fails due to an error.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnErrorEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("error", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnErrorEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnErrorEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("error", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListener{TEvent}"/> for when a load finishes successfully or not.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task AddOnLoadEndEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        await AddEventListenerAsync("error", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadEndEventListenerAsync"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public async Task RemoveOnLoadEndEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        await RemoveEventListenerAsync("error", callback, options);
     }
 
     /// <inheritdoc/>
