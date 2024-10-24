@@ -14,7 +14,7 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
     public new IJSInProcessObjectReference JSReference { get; set; }
 
     /// <summary>
-    /// A lazily loaded task that evaluates to a helper module instance from the Blazor.FileAPI library.
+    /// A helper module instance from the Blazor.FileAPI library.
     /// </summary>
     protected IJSInProcessObjectReference InProcessHelper { get; }
 

@@ -12,7 +12,7 @@ public class ProgressEventInProcess : ProgressEvent, IJSInProcessCreatable<Progr
     public new IJSInProcessObjectReference JSReference { get; }
 
     /// <summary>
-    /// A lazily loaded task that evaluates to a helper module instance from the Blazor.FileAPI library.
+    /// A helper module instance from the Blazor.FileAPI library.
     /// </summary>
     protected readonly IJSInProcessObjectReference InProcessHelper;
 
