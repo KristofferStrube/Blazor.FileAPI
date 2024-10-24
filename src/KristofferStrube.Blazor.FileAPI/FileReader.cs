@@ -17,13 +17,13 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     protected readonly Lazy<Task<IJSObjectReference>> fileApiHelperTask;
 
     /// <inheritdoc/>
-    public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    public static new async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
         return await CreateAsync(jSRuntime, jSReference, new());
     }
 
     /// <inheritdoc/>
-    public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    public static new async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         FileReader fileReader = new(jSRuntime, jSReference, options);
