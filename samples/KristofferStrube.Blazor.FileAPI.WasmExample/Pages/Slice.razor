@@ -28,7 +28,7 @@ Here we can see how we can slice a <code>Blob</code>. We construct a <code>Blob<
 
     protected override async Task OnInitializedAsync()
     {
-        var blob = await BlobInProcess.CreateAsync(
+        await using var blob = await BlobInProcess.CreateAsync(
             JSRuntime,
             blobParts: new BlobPart[] { Enumerable.Range(0, 50).Select(i => (byte)i).ToArray() },
             options: new() { Type = "text/plain" }

@@ -41,7 +41,7 @@ You also need to reference the package in order to use it in your pages. This ca
 Most of this library is wrapper classes which can be instantiated from your code using the static `Create` and `CreateAsync` methods on the wrapper classes.
 An example could be to create an instance of a `Blob` that contains the text `"Hello World!"` and gets its `Size` and `Type`, read it as a `ReadableStream`, read as text directly, and slice it into a new `Blob` like this.
 ```csharp
-Blob blob = await Blob.CreateAsync(
+await using Blob blob = await Blob.CreateAsync(
     JSRuntime,
     blobParts: new BlobPart[] {
         "Hello ",
@@ -51,13 +51,13 @@ Blob blob = await Blob.CreateAsync(
 );
 ulong size = await blob.GetSizeAsync(); // 12
 string type = await blob.GetTypeAsync(); // "text/plain"
-ReadableStream stream = await blob.StreamAsync();
+await using ReadableStream stream = await blob.StreamAsync();
 string text = await blob.TextAsync(); // "Hello World!"
-Blob worldBlob = await blob.SliceAsync(6, 11); // Blob containing "World"
+await using Blob worldBlob = await blob.SliceAsync(6, 11); // Blob containing "World"
 ```
 All creator methods take an `IJSRuntime` instance as the first parameter. The above sample will work in both Blazor Server and Blazor WebAssembly. If we only want to work with Blazor WebAssembly we can use the `InProcess` variant of the wrapper class. This is equivalent to the relationship between `IJSRuntime` and `IJSInProcessRuntime`. We can recreate the above sample using the `BlobInProcess` which will simplify some of the methods we can call on the `Blob` and how we access attributes.
 ```csharp
-BlobInProcess blob = await BlobInProcess.CreateAsync(
+await using BlobInProcess blob = await BlobInProcess.CreateAsync(
     JSRuntime,
     blobParts: new BlobPart[] {
         "Hello ",
@@ -67,9 +67,9 @@ BlobInProcess blob = await BlobInProcess.CreateAsync(
 );
 ulong size = blob.Size; // 12
 string type = blob.Type; // "text/plain"
-ReadableStreamInProcess stream = await blob.StreamAsync();
+await using ReadableStreamInProcess stream = await blob.StreamAsync();
 string text = await blob.TextAsync(); // "Hello World!"
-BlobInProcess worldBlob = blob.Slice(6, 11); // BlobInProcess containing "World"
+await using BlobInProcess worldBlob = blob.Slice(6, 11); // BlobInProcess containing "World"
 ```
 Some of the methods wrap a `Promise` so even in the `InProcess` variant we need to await it like we see for `TextAsync` above.
 
@@ -77,11 +77,11 @@ If you have an `IJSObjectReference` or an `IJSInProcessObjectReference` for a ty
 ```csharp
 // Blazor Server compatible.
 IJSObjectReference jSFile; // JS Reference from other package or your own JSInterop.
-File file = File.Create(JSRuntime, jSFile);
+await using File file = File.CreateAsync(JSRuntime, jSFile, new() { DisposesJSReference = true });
 
 // InProcess only supported in Blazor WebAssembly.
 IJSInProcessObjectReference jSFileInProcess; // JS Reference from other package or your own JSInterop.
-FileInProcess fileInProcess = await File.CreateAsync(JSRuntime, jSFileInProcess);
+await using FileInProcess fileInProcess = await File.CreateAsync(JSRuntime, jSFileInProcess);
 ```
 
 ## Add to service collection
@@ -127,11 +127,13 @@ You can likewise add the `InProcess` variant of the service (`IURLServiceInProce
 Feel free to open issues on the repository if you find any errors with the package or have wishes for features.
 
 # Related repositories
-This project uses the *Blazor.Streams* package to return a rich `ReadableStream` from the `StreamAsync` method on a `Blob`.
-- https://github.com/KristofferStrube/Blazor.Streams
+The library uses the following other packages to support its features:
+- https://github.com/KristofferStrube/Blazor.Streams (To return a rich `ReadableStream` from the `StreamAsync` method on a `Blob`)
+- https://github.com/KristofferStrube/Blazor.DOM (To implement `FileReader` which extends `EventTarget` and to implement `ProgressEvent` which extends `Event`)
 
-This project is used in the *Blazor.FileSystem* package to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`.
-- https://github.com/KristofferStrube/Blazor.FileSystemAccess
+The library is used in the following other packages to support their features:
+- https://github.com/KristofferStrube/Blazor.FileSystem (to return a rich `File` object when getting the `File` from a `FileSystemFileHandle` and when writing a `Blob` to a `FileSystemWritableFileSystem`)
+- https://github.com/KristofferStrube/Blazor.MediaStreamRecording (to get the data from a `BlobEvent` which is created when a chunk of a stream has been recorded)
 
 # Related articles
 This repository was build with inspiration and help from the following series of articles:
