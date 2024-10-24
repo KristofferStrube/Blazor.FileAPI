@@ -12,7 +12,7 @@ This sample will illustrate stream reading a large Blob to .NET using the inbuil
 <br />
 <ol>
     <li>We have created a method in JS called <code>hugeBlob()</code> which creates a huge object in the form of a large empty array, serialized to a JSON string, and then parsed into the <code>Blob</code> constructor.</li>
-    <li>We construct a wrapper around the JS object reference <i>(jSBlob)</i> by calling <code>Blob.Create(JSRuntime, jSBlob)</code>.</li>
+    <li>We construct a wrapper around the JS object reference <i>(jSBlob)</i> by calling <code>Blob.CreateAsync(JSRuntime, jSBlob)</code>.</li>
     <li>We get a <code>ReadableStream</code> from the Blob by calling <code>await blob.StreamAsync()</code>.</li>
     <li>We get the default reader of the stream by calling <code>await stream.GetDefaultReaderAsync()</code>.</li>
     <li>We iterate the chunks of the reader and append the chunk to our result. Below you can see chunk sizes read and the length of the result that has been built.</li>
