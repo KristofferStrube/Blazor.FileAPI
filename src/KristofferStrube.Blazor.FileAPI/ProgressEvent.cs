@@ -1,18 +1,27 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
 /// <see href="https://xhr.spec.whatwg.org/#progressevent">ProgressEvent browser specs</see>
 /// </summary>
-public class ProgressEvent : BaseJSWrapper
+public class ProgressEvent : BaseJSWrapper, IJSCreatable<ProgressEvent>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="ProgressEvent"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="ProgressEvent"/>.</param>
-    internal ProgressEvent(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc/>
+    public static async Task<ProgressEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static Task<ProgressEvent> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new ProgressEvent(jSRuntime, jSReference, options));
+    }
+
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected internal ProgressEvent(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 
     /// <summary>
     /// Indicates whether the total can be calculated.

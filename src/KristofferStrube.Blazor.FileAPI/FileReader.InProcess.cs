@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.FileAPI;
@@ -6,20 +7,28 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// <summary>
 /// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
 /// </summary>
-public class FileReaderInProcess : FileReader
+[IJSWrapperConverter]
+public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderInProcess, FileReader>
 {
-    public new IJSInProcessObjectReference JSReference;
-    protected readonly IJSInProcessObjectReference inProcessHelper;
+    /// <inheritdoc/>
+    public new IJSInProcessObjectReference JSReference { get; set; }
+
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="FileReader"/>.
+    /// A lazily loaded task that evaluates to a helper module instance from the Blazor.FileAPI library.
     /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="FileReader"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
+    protected IJSInProcessObjectReference InProcessHelper { get; }
+
+    /// <inheritdoc/>
     public static async Task<FileReaderInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference)
     {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static async Task<FileReaderInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference, CreationOptions options)
+    {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        return new FileReaderInProcess(jSRuntime, inProcessHelper, jSReference);
+        return new FileReaderInProcess(jSRuntime, inProcessHelper, jSReference, options);
     }
 
     /// <summary>
@@ -31,25 +40,20 @@ public class FileReaderInProcess : FileReader
     {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
         IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructFileReader");
-        FileReaderInProcess fileReaderInProcess = new FileReaderInProcess(jSRuntime, inProcessHelper, jSInstance);
+        FileReaderInProcess fileReaderInProcess = new(jSRuntime, inProcessHelper, jSInstance, new() { DisposesJSReference = true });
         await inProcessHelper.InvokeVoidAsync("registerEventHandlers", DotNetObjectReference.Create(fileReaderInProcess), jSInstance);
         return fileReaderInProcess;
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="inProcessHelper">An in process helper instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="File"/>.</param>
-    internal FileReaderInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSInProcessObjectReference, CreationOptions)"/>
+    protected FileReaderInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
-        this.inProcessHelper = inProcessHelper;
         JSReference = jSReference;
+        InProcessHelper = inProcessHelper;
     }
 
     /// <summary>
-    /// Starts a new read for some <see cref="Blob"/> as an <see langword="byte"/>[] which can be read from <see cref="GetResultAsByteArrayAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
+    /// Starts a new read for some <see cref="Blob"/> as an <see langword="byte"/>[] which can be read from <see cref="ResultAsByteArray"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
     /// </summary>
     /// <param name="blob">The <see cref="Blob"/> that should be read asynchronously.</param>
     /// <returns></returns>
@@ -59,7 +63,7 @@ public class FileReaderInProcess : FileReader
     }
 
     /// <summary>
-    /// Starts a new read for some <see cref="Blob"/> as a binarily encoded <see langword="string"/> which can be read from <see cref="GetResultAsStringAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
+    /// Starts a new read for some <see cref="Blob"/> as a binarily encoded <see langword="string"/> which can be read from <see cref="ResultAsString"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
     /// </summary>
     /// <param name="blob">The <see cref="Blob"/> that should be read asynchronously.</param>
     /// <returns></returns>
@@ -69,7 +73,7 @@ public class FileReaderInProcess : FileReader
     }
 
     /// <summary>
-    /// Starts a new read for some <see cref="Blob"/> as a <see langword="string"/> which can be read from <see cref="GetResultAsStringAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
+    /// Starts a new read for some <see cref="Blob"/> as a <see langword="string"/> which can be read from <see cref="ResultAsString"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
     /// </summary>
     /// <param name="blob">The <see cref="Blob"/> that should be read asynchronously.</param>
     /// <param name="encoding">An optional encoding for the text. The default is UTF-8.</param>
@@ -80,7 +84,7 @@ public class FileReaderInProcess : FileReader
     }
 
     /// <summary>
-    /// Starts a new read for some <see cref="Blob"/> as a base64 encoded Data URL which can be read from <see cref="GetResultAsStringAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
+    /// Starts a new read for some <see cref="Blob"/> as a base64 encoded Data URL which can be read from <see cref="ResultAsString"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
     /// </summary>
     /// <param name="blob">The <see cref="Blob"/> that should be read asynchronously.</param>
     /// <returns></returns>
@@ -90,7 +94,7 @@ public class FileReaderInProcess : FileReader
     }
 
     /// <summary>
-    /// Terminates the load if the <see cref="GetReadyStateAsync"/> is <see cref="LOADING"/> else it sets the result to <see langword="null"/>.
+    /// Terminates the load if the <see cref="ReadyState"/> is <see cref="FileReader.LOADING"/> else it sets the result to <see langword="null"/>.
     /// </summary>
     /// <param name="blob">The <see cref="Blob"/> read that should be terminated.</param>
     /// <returns></returns>
@@ -102,32 +106,32 @@ public class FileReaderInProcess : FileReader
     /// <summary>
     /// Gets the state of the <see cref="FileReader"/>.
     /// </summary>
-    /// <returns>As a standard either <see cref="EMPTY"/>, <see cref="LOADING"/> or <see cref="DONE"/></returns>
-    public ushort ReadyState => inProcessHelper.Invoke<ushort>("getAttribute", JSReference, "readyState");
+    /// <returns>As a standard either <see cref="FileReader.EMPTY"/>, <see cref="FileReader.LOADING"/> or <see cref="FileReader.DONE"/></returns>
+    public ushort ReadyState => InProcessHelper.Invoke<ushort>("getAttribute", JSReference, "readyState");
 
     /// <summary>
     /// Checks whether the result is a either a <see langword="string"/> or a byte array.
     /// </summary>
     /// <returns>Either the type of <see langword="string"/> or type of <see cref="byte"/>[].</returns>
-    public Type? ResultType => inProcessHelper.Invoke<bool>("isArrayBuffer", JSReference) ? typeof(byte[]) : typeof(string);
+    public Type? ResultType => InProcessHelper.Invoke<bool>("isArrayBuffer", JSReference) ? typeof(byte[]) : typeof(string);
 
     /// <summary>
     /// Gets the result of the read a <see langword="string"/>.
     /// </summary>
     /// <returns>A <see langword="string"/> representing the read. If there was no result from the read or if the read has not ended yet then it will be <see langword="null"/>.</returns>
-    public string? ResultAsString => inProcessHelper.Invoke<string?>("getAttribute", JSReference, "result");
+    public string? ResultAsString => InProcessHelper.Invoke<string?>("getAttribute", JSReference, "result");
 
     /// <summary>
     /// Gets the result of the read a <see langword="byte"/>[].
     /// </summary>
     /// <returns>A <see langword="byte"/>[] representing the read. If there was no result from the read or if the read has not ended yet then it will be <see langword="null"/>.</returns>
-    public byte[]? ResultAsByteArray => inProcessHelper.Invoke<byte[]?>("arrayBuffer", inProcessHelper.Invoke<IJSObjectReference>("getAttribute", JSReference, "result"));
+    public byte[]? ResultAsByteArray => InProcessHelper.Invoke<byte[]?>("arrayBuffer", InProcessHelper.Invoke<IJSObjectReference>("getAttribute", JSReference, "result"));
 
     /// <summary>
     /// Gets the error object reference which will be <see langword="null"/> if no error occured.
     /// </summary>
     /// <returns>A nullable IJSObjectReference because it was out of scope to wrap the Exception API.</returns>
-    public IJSObjectReference? Error => inProcessHelper.Invoke<IJSObjectReference?>("getAttribute", JSReference, "error");
+    public IJSObjectReference? Error => InProcessHelper.Invoke<IJSObjectReference?>("getAttribute", JSReference, "error");
 
     /// <summary>
     /// Invoked when a load starts.
@@ -164,6 +168,7 @@ public class FileReaderInProcess : FileReader
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnLoadEnd { get; set; }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnLoadStart(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -172,9 +177,10 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnLoadStart.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnLoadStart.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnProgress(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -183,9 +189,10 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnProgress.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnProgress.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnLoad(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -194,9 +201,10 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnLoad.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnLoad.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnAbort(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -205,9 +213,10 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnAbort.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnAbort.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnError(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -216,9 +225,10 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnError.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnError.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public void InvokeOnLoadEnd(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -227,6 +237,6 @@ public class FileReaderInProcess : FileReader
             return;
         }
 
-        OnLoadEnd.Invoke(new ProgressEventInProcess(jSRuntime, inProcessHelper, jsProgressEvent));
+        OnLoadEnd.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 }

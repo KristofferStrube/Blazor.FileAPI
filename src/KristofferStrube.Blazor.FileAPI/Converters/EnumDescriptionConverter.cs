@@ -17,7 +17,7 @@ internal class EnumDescriptionConverter<T> : JsonConverter<T> where T : ICompara
 
         foreach (FieldInfo? fi in typeToConvert.GetFields())
         {
-            DescriptionAttribute description = (DescriptionAttribute)fi.GetCustomAttribute(typeof(DescriptionAttribute), false);
+            var description = (DescriptionAttribute)fi.GetCustomAttribute(typeof(DescriptionAttribute), false);
 
             if (description != null)
             {
@@ -34,7 +34,7 @@ internal class EnumDescriptionConverter<T> : JsonConverter<T> where T : ICompara
     {
         FieldInfo fi = value.GetType().GetField(value.ToString());
 
-        DescriptionAttribute description = (DescriptionAttribute)fi.GetCustomAttribute(typeof(DescriptionAttribute), false);
+        var description = (DescriptionAttribute)fi.GetCustomAttribute(typeof(DescriptionAttribute), false);
 
         writer.WriteStringValue(description.Description);
     }

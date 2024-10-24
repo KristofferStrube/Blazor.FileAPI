@@ -1,4 +1,5 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.FileAPI;
@@ -6,18 +7,20 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// <summary>
 /// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
 /// </summary>
-public class FileReader : BaseJSWrapper
+[IJSWrapperConverter]
+public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
 {
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="FileReader"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="FileReader"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
+    /// <inheritdoc/>
     public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        FileReader fileReader = new(jSRuntime, jSReference);
+        FileReader fileReader = new(jSRuntime, jSReference, options);
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSReference);
         return fileReader;
     }
@@ -31,17 +34,13 @@ public class FileReader : BaseJSWrapper
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFileReader");
-        FileReader fileReader = new(jSRuntime, jSInstance);
+        FileReader fileReader = new(jSRuntime, jSInstance, new() { DisposesJSReference = true });
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSInstance);
         return fileReader;
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="FileReader"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="FileReader"/>.</param>
-    internal FileReader(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected FileReader(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 
     /// <summary>
     /// Starts a new read for some <see cref="Blob"/> as an <see langword="byte"/>[] which can be read from <see cref="GetResultAsByteArrayAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
@@ -94,8 +93,19 @@ public class FileReader : BaseJSWrapper
         await JSReference.InvokeVoidAsync("abort", blob.JSReference);
     }
 
+    /// <summary>
+    /// The value returned by <see cref="GetReadyStateAsync"/> if the state of the <see cref="FileReader"/> is empty.
+    /// </summary>
     public const ushort EMPTY = 0;
+
+    /// <summary>
+    /// The value returned by <see cref="GetReadyStateAsync"/> if the state of the <see cref="FileReader"/> is loading.
+    /// </summary>
     public const ushort LOADING = 1;
+
+    /// <summary>
+    /// The value returned by <see cref="GetReadyStateAsync"/> if the state of the <see cref="FileReader"/> is done.
+    /// </summary>
     public const ushort DONE = 2;
 
     /// <summary>
@@ -186,6 +196,7 @@ public class FileReader : BaseJSWrapper
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoadEnd { get; set; }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnLoadStartAsync(IJSObjectReference jsProgressEvent)
     {
@@ -194,9 +205,10 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnLoadStart.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnLoadStart.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnProgressAsync(IJSObjectReference jsProgressEvent)
     {
@@ -205,9 +217,10 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnProgress.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnProgress.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnLoadAsync(IJSObjectReference jsProgressEvent)
     {
@@ -216,9 +229,10 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnLoad.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnLoad.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnAbortAsync(IJSObjectReference jsProgressEvent)
     {
@@ -227,9 +241,10 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnAbort.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnAbort.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnErrorAsync(IJSObjectReference jsProgressEvent)
     {
@@ -238,9 +253,10 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnError.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnError.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
+    /// <summary>Internal method that will be removed in next major release.</summary>
     [JSInvokable]
     public async Task InvokeOnLoadEndAsync(IJSObjectReference jsProgressEvent)
     {
@@ -249,6 +265,6 @@ public class FileReader : BaseJSWrapper
             return;
         }
 
-        await OnLoadEnd.Invoke(new ProgressEvent(jSRuntime, jsProgressEvent));
+        await OnLoadEnd.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 }
