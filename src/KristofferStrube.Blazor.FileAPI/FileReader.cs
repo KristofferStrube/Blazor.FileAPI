@@ -1,4 +1,5 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
 
@@ -8,8 +9,13 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
 /// </summary>
 [IJSWrapperConverter]
-public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
+public class FileReader : EventTarget, IJSCreatable<FileReader>
 {
+    /// <summary>
+    /// A lazily loaded task that evaluates to a helper module instance from the Blazor.FileAPI library.
+    /// </summary>
+    protected readonly Lazy<Task<IJSObjectReference>> fileApiHelperTask;
+
     /// <inheritdoc/>
     public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
@@ -40,7 +46,10 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     }
 
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
-    protected FileReader(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
+    protected FileReader(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
+    {
+        fileApiHelperTask = new(jSRuntime.GetHelperAsync);
+    }
 
     /// <summary>
     /// Starts a new read for some <see cref="Blob"/> as an <see langword="byte"/>[] which can be read from <see cref="GetResultAsByteArrayAsync"/> once the load has ended which can be checked by setting the action <see cref="OnLoadEnd"/>.
@@ -114,7 +123,7 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     /// <returns>As a standard either <see cref="EMPTY"/>, <see cref="LOADING"/> or <see cref="DONE"/></returns>
     public async Task<ushort> GetReadyStateAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await fileApiHelperTask.Value;
         return await helper.InvokeAsync<ushort>("getAttribute", JSReference, "readyState");
     }
 
@@ -124,7 +133,7 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     /// <returns>Either the type of <see langword="string"/> or type of <see cref="byte"/>[].</returns>
     public async Task<Type?> GetResultTypeAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await fileApiHelperTask.Value;
         bool isArrayBuffer = await helper.InvokeAsync<bool>("isArrayBuffer", JSReference);
         return isArrayBuffer ? typeof(byte[]) : typeof(string);
     }
@@ -135,7 +144,7 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     /// <returns>A <see langword="string"/> representing the read. If there was no result from the read or if the read has not ended yet then it will be <see langword="null"/>.</returns>
     public async Task<string?> GetResultAsStringAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await fileApiHelperTask.Value;
         return await helper.InvokeAsync<string?>("getAttribute", JSReference, "result");
     }
 
@@ -145,7 +154,7 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     /// <returns>A <see langword="byte"/>[] representing the read. If there was no result from the read or if the read has not ended yet then it will be <see langword="null"/>.</returns>
     public async Task<byte[]?> GetResultAsByteArrayAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await fileApiHelperTask.Value;
         IJSObjectReference jSResult = await helper.InvokeAsync<IJSObjectReference>("getAttribute", JSReference, "result");
         return await helper.InvokeAsync<byte[]?>("arrayBuffer", jSResult);
     }
@@ -156,7 +165,7 @@ public class FileReader : BaseJSWrapper, IJSCreatable<FileReader>
     /// <returns>A nullable IJSObjectReference because it was out of scope to wrap the Exception API.</returns>
     public async Task<IJSObjectReference?> GetErrorAsync()
     {
-        IJSObjectReference helper = await helperTask.Value;
+        IJSObjectReference helper = await fileApiHelperTask.Value;
         return await helper.InvokeAsync<IJSObjectReference?>("getAttribute", JSReference, "error");
     }
 
