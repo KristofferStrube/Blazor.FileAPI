@@ -276,4 +276,16 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
 
         await OnLoadEnd.Invoke(new ProgressEvent(JSRuntime, jsProgressEvent, new() { DisposesJSReference = true }));
     }
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        if (fileApiHelperTask.IsValueCreated)
+        {
+            IJSObjectReference module = await helperTask.Value;
+            await module.DisposeAsync();
+        }
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }
