@@ -1,4 +1,6 @@
-﻿using KristofferStrube.Blazor.WebIDL;
+﻿using KristofferStrube.Blazor.DOM;
+using KristofferStrube.Blazor.DOM.Extensions;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
 
@@ -8,7 +10,7 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
 /// </summary>
 [IJSWrapperConverter]
-public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderInProcess, FileReader>
+public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderInProcess, FileReader>, IEventTargetInProcess
 {
     /// <inheritdoc/>
     public new IJSInProcessObjectReference JSReference { get; set; }
@@ -238,6 +240,40 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         }
 
         OnLoadEnd.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
+    }
+
+    /// <inheritdoc/>
+    public void AddEventListener<TInProcessEvent, TEvent>(string type, EventListenerInProcess<TInProcessEvent, TEvent>? callback, AddEventListenerOptions? options = null)
+         where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
+    {
+        this.AddEventListener(InProcessHelper, type, callback, options);
+    }
+
+    /// <inheritdoc/>
+    public void AddEventListener<TInProcessEvent, TEvent>(EventListenerInProcess<TInProcessEvent, TEvent>? callback, AddEventListenerOptions? options = null)
+         where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
+    {
+        this.AddEventListener(InProcessHelper, callback, options);
+    }
+
+    /// <inheritdoc/>
+    public void RemoveEventListener<TInProcessEvent, TEvent>(string type, EventListenerInProcess<TInProcessEvent, TEvent>? callback, EventListenerOptions? options = null)
+         where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
+    {
+        this.RemoveEventListener(InProcessHelper, type, callback, options);
+    }
+
+    /// <inheritdoc/>
+    public void RemoveEventListener<TInProcessEvent, TEvent>(EventListenerInProcess<TInProcessEvent, TEvent>? callback, EventListenerOptions? options = null)
+         where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
+    {
+        this.RemoveEventListener(InProcessHelper, callback, options);
+    }
+
+    /// <inheritdoc/>
+    public bool DispatchEvent(Event eventInstance)
+    {
+        return IEventTargetInProcessExtensions.DispatchEvent(this, eventInstance);
     }
 
     /// <inheritdoc/>
