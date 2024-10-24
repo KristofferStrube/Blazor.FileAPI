@@ -36,7 +36,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
-    public static async Task<FileReader> CreateAsync(IJSRuntime jSRuntime)
+    public static new async Task<FileReader> CreateAsync(IJSRuntime jSRuntime)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFileReader");
