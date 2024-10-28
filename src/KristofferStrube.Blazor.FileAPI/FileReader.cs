@@ -397,7 +397,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <param name="options"><inheritdoc cref="EventTarget.AddEventListenerAsync{TEvent}(string, EventListener{TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
     public async Task AddOnLoadEndEventListenerAsync(EventListener<ProgressEvent> callback, AddEventListenerOptions? options = null)
     {
-        await AddEventListenerAsync("error", callback, options);
+        await AddEventListenerAsync("loadend", callback, options);
     }
 
     /// <summary>
@@ -407,7 +407,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <param name="options"><inheritdoc cref="EventTarget.RemoveEventListenerAsync{TEvent}(string, EventListener{TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
     public async Task RemoveOnLoadEndEventListenerAsync(EventListener<ProgressEvent> callback, EventListenerOptions? options = null)
     {
-        await RemoveEventListenerAsync("error", callback, options);
+        await RemoveEventListenerAsync("loadend", callback, options);
     }
 
     /// <inheritdoc/>
