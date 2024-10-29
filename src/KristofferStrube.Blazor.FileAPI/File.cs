@@ -4,8 +4,11 @@ using Microsoft.JSInterop;
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#file-section">File browser specs</see>
+/// A File object is a <see cref="Blob"/> object with a <see cref="GetNameAsync"/> attribute, which is a string;
+/// it can be created within the web application via a constructor,
+/// or is a reference to a byte sequence from a file from the underlying (OS) file system.
 /// </summary>
+/// <remarks><see href="https://www.w3.org/TR/FileAPI/#file-section">See the API definition here</see></remarks>
 [IJSWrapperConverter]
 public class File : Blob, IJSCreatable<File>
 {

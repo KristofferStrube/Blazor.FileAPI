@@ -6,9 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
-/// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
-/// </summary>
+/// <inheritdoc/>
 [IJSWrapperConverter]
 public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderInProcess, FileReader>, IEventTargetInProcess
 {

@@ -4,9 +4,7 @@ using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
-/// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#blob-section">Blob browser specs</see>
-/// </summary>
+/// <inheritdoc/>
 [IJSWrapperConverter]
 public class BlobInProcess : Blob, IJSInProcessCreatable<BlobInProcess, Blob>
 {

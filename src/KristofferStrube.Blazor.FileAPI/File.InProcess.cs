@@ -4,9 +4,7 @@ using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
-/// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#file-section">File browser specs</see>
-/// </summary>
+/// <inheritdoc/>
 [IJSWrapperConverter]
 public class FileInProcess : File, IJSInProcessCreatable<FileInProcess, File>
 {

@@ -5,8 +5,11 @@ using Microsoft.JSInterop;
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#blob-section">Blob browser specs</see>
+/// A <see cref="Blob"/> object refers to a byte sequence,
+/// and has a <see cref="GetSizeAsync"/> attribute which is the total number of bytes in the byte sequence,
+/// and a <see cref="GetTypeAsync"/> attribute, which is an ASCII-encoded string in lower case representing the media type of the byte sequence.
 /// </summary>
+/// <remarks><see href="https://www.w3.org/TR/FileAPI/#blob-section">See the API definition here</see></remarks>
 [IJSWrapperConverter]
 public class Blob : BaseJSWrapper, IJSCreatable<Blob>
 {

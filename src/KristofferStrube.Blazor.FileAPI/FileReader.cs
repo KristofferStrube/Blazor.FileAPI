@@ -6,8 +6,9 @@ using System.Text.Json.Serialization;
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">FileReader browser specs</see>
+/// A reader that can asynchronously start reads of <see cref="Blob"/>s or <see cref="File"/>s and listen for events for its progress until it finishes.
 /// </summary>
+/// <remarks><see href="https://www.w3.org/TR/FileAPI/#dfn-filereader">See the API definition here</see></remarks>
 [IJSWrapperConverter]
 public class FileReader : EventTarget, IJSCreatable<FileReader>
 {
