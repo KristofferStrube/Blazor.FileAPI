@@ -46,10 +46,11 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     }
 
 
-    private async Task GetProgressAsync(ProgressEvent eventArgs, string prepend)
+    private async Task GetProgressAsync(ProgressEvent eventArgs)
     {
         var progress = await eventArgs.GetLengthComputableAsync() ? $"({await eventArgs.GetLoadedAsync()}/{await eventArgs.GetTotalAsync()})" : "";
-        log += $"{prepend}: {progress}\n";
+        var type = await eventArgs.GetTypeAsync();
+        log += $"{type}: {progress}\n";
         StateHasChanged();
     }
 
@@ -57,16 +58,21 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
-        fileReader.OnLoadEnd = async (e) =>
+
+        await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
+        await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
         {
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(await fileReader.GetResultAsByteArrayAsync() ?? new byte[0]);
-            await GetProgressAsync(e, "OnLoadEnd");
-        };
+            await GetProgressAsync(e);
+        });
+
+        await fileReader.AddOnLoadStartEventListenerAsync(eventListener);
+        await fileReader.AddOnProgressEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEventListenerAsync(eventListener);
+        await fileReader.AddOnAbortEventListenerAsync(eventListener);
+        await fileReader.AddOnErrorEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEndEventListenerAsync(loadEndEventLister);
+
         await fileReader.ReadAsArrayBufferAsync(blob!);
     }
 
@@ -74,16 +80,21 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReaderInProcess.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = (e) => GetProgress(e, "OnLoadStart");
-        fileReader.OnProgress = (e) => GetProgress(e, "OnProgress");
-        fileReader.OnLoad = (e) => GetProgress(e, "OnLoad");
-        fileReader.OnAbort = (e) => GetProgress(e, "OnAbort");
-        fileReader.OnError = (e) => GetProgress(e, "OnError");
-        fileReader.OnLoadEnd = (e) =>
+
+        await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
+        await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
         {
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(fileReader.ResultAsByteArray ?? new byte[0]);
-            GetProgress(e, "OnLoadEnd");
-        };
+            await GetProgressAsync(e);
+        });
+
+        await fileReader.AddOnLoadStartEventListenerAsync(eventListener);
+        await fileReader.AddOnProgressEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEventListenerAsync(eventListener);
+        await fileReader.AddOnAbortEventListenerAsync(eventListener);
+        await fileReader.AddOnErrorEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEndEventListenerAsync(loadEndEventLister);
+
         fileReader.ReadAsArrayBuffer(blob!);
     }
 
@@ -91,17 +102,22 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
-        fileReader.OnLoadEnd = async (e) =>
+
+        await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
+        await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
         {
             var bytes = (await fileReader.GetResultAsStringAsync() ?? "").Select(c => (byte)c).ToArray();
             imageUrl = "data:image/png;base64," + Convert.ToBase64String(bytes);
-            await GetProgressAsync(e, "OnLoadEnd");
-        };
+            await GetProgressAsync(e);
+        });
+
+        await fileReader.AddOnLoadStartEventListenerAsync(eventListener);
+        await fileReader.AddOnProgressEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEventListenerAsync(eventListener);
+        await fileReader.AddOnAbortEventListenerAsync(eventListener);
+        await fileReader.AddOnErrorEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEndEventListenerAsync(loadEndEventLister);
+
         await fileReader.ReadAsBinaryStringAsync(blob!);
     }
 
@@ -116,16 +132,21 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     {
         log = "";
         var fileReader = await FileReader.CreateAsync(JSRuntime);
-        fileReader.OnLoadStart = async (e) => await GetProgressAsync(e, "OnLoadStart");
-        fileReader.OnProgress = async (e) => await GetProgressAsync(e, "OnProgress");
-        fileReader.OnLoad = async (e) => await GetProgressAsync(e, "OnLoad");
-        fileReader.OnAbort = async (e) => await GetProgressAsync(e, "OnAbort");
-        fileReader.OnError = async (e) => await GetProgressAsync(e, "OnError");
-        fileReader.OnLoadEnd = async (e) =>
+
+        await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
+        await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
         {
             imageUrl = await fileReader.GetResultAsStringAsync() ?? "";
-            await GetProgressAsync(e, "OnLoadEnd");
-        };
+            await GetProgressAsync(e);
+        });
+
+        await fileReader.AddOnLoadStartEventListenerAsync(eventListener);
+        await fileReader.AddOnProgressEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEventListenerAsync(eventListener);
+        await fileReader.AddOnAbortEventListenerAsync(eventListener);
+        await fileReader.AddOnErrorEventListenerAsync(eventListener);
+        await fileReader.AddOnLoadEndEventListenerAsync(loadEndEventLister);
+
         await fileReader.ReadAsDataURLAsync(blob!);
     }
 
