@@ -173,42 +173,42 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <summary>
     /// Invoked when a load starts.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadStartEventListenerAsync and RemoveOnLoadStartEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadStartEventListenerAsync and RemoveOnLoadStartEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoadStart { get; set; }
 
     /// <summary>
     /// Invoked when the progress of a load changes which includes when it ends.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnProgressEventListenerAsync and RemoveOnProgressEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnProgressEventListenerAsync and RemoveOnProgressEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnProgress { get; set; }
 
     /// <summary>
     /// Invoked when a load ends successfully.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadEventListenerAsync and RemoveOnLoadEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadEventListenerAsync and RemoveOnLoadEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoad { get; set; }
 
     /// <summary>
     /// Invoked when a load is aborted.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnAbortEventListenerAsync and RemoveOnAbortEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnAbortEventListenerAsync and RemoveOnAbortEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnAbort { get; set; }
 
     /// <summary>
     /// Invoked when a load fails due to an error.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnErrorEventListenerAsync and RemoveOnErrorEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnErrorEventListenerAsync and RemoveOnErrorEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnError { get; set; }
 
     /// <summary>
     /// Invoked when a load finishes successfully or not.
     /// </summary>
-    [Obsolete("This will be removed in the next major release as in favor of AddOnLoadEndEventListenerAsync and RemoveOnLoadEndEventListenerAsync as they are more memory safe.")]
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadEndEventListenerAsync and RemoveOnLoadEndEventListenerAsync as they are more memory safe.")]
     [JsonIgnore]
     public Func<ProgressEvent, Task>? OnLoadEnd { get; set; }
 
