@@ -38,19 +38,20 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
         );
     }
 
-    private void GetProgress(ProgressEventInProcess eventArgs, string prepend)
+    private void GetProgress(ProgressEventInProcess eventArgs)
     {
+        var time = eventArgs.TimeStamp;
         var progress = eventArgs.LengthComputable ? $"({eventArgs.Loaded}/{eventArgs.Total})" : "";
-        log += $"{prepend}: {progress}\n";
+        log += $"{time:F2} - {eventArgs.Type}: {progress}\n";
         StateHasChanged();
     }
 
-
     private async Task GetProgressAsync(ProgressEvent eventArgs)
     {
-        var progress = await eventArgs.GetLengthComputableAsync() ? $"({await eventArgs.GetLoadedAsync()}/{await eventArgs.GetTotalAsync()})" : "";
+        var time = await eventArgs.GetTimeStampAsync();
         var type = await eventArgs.GetTypeAsync();
-        log += $"{type}: {progress}\n";
+        var progress = await eventArgs.GetLengthComputableAsync() ? $"({await eventArgs.GetLoadedAsync()}/{await eventArgs.GetTotalAsync()})" : "";
+        log += $"{time:F2} - {type}: {progress}\n";
         StateHasChanged();
     }
 
@@ -81,19 +82,21 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
         log = "";
         var fileReader = await FileReaderInProcess.CreateAsync(JSRuntime);
 
-        await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
-        await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
+        await using var eventListener = await EventListenerInProcess<ProgressEventInProcess, ProgressEvent>.CreateAsync(JSRuntime, e =>
         {
-            imageUrl = "data:image/png;base64," + Convert.ToBase64String(fileReader.ResultAsByteArray ?? new byte[0]);
-            await GetProgressAsync(e);
+            if (e.Type == "loadend")
+            {
+                imageUrl = "data:image/png;base64," + Convert.ToBase64String(fileReader.ResultAsByteArray ?? new byte[0]);
+            }
+            GetProgress(e);
         });
 
-        await fileReader.AddOnLoadStartEventListenerAsync(eventListener);
-        await fileReader.AddOnProgressEventListenerAsync(eventListener);
-        await fileReader.AddOnLoadEventListenerAsync(eventListener);
-        await fileReader.AddOnAbortEventListenerAsync(eventListener);
-        await fileReader.AddOnErrorEventListenerAsync(eventListener);
-        await fileReader.AddOnLoadEndEventListenerAsync(loadEndEventLister);
+        fileReader.AddOnLoadStartEventListener(eventListener);
+        fileReader.AddOnProgressEventListener(eventListener);
+        fileReader.AddOnLoadEventListener(eventListener);
+        fileReader.AddOnAbortEventListener(eventListener);
+        fileReader.AddOnErrorEventListener(eventListener);
+        fileReader.AddOnLoadEndEventListener(eventListener);
 
         fileReader.ReadAsArrayBuffer(blob!);
     }
