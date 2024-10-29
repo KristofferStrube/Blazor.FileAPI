@@ -65,7 +65,7 @@ public class FileInProcess : File, IJSInProcessCreatable<FileInProcess, File>
     public new async Task<ReadableStreamInProcess> StreamAsync()
     {
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
-        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance);
+        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

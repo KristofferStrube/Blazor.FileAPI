@@ -64,7 +64,7 @@ public class BlobInProcess : Blob, IJSInProcessCreatable<BlobInProcess, Blob>
     public new async Task<ReadableStreamInProcess> StreamAsync()
     {
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
-        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance);
+        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
