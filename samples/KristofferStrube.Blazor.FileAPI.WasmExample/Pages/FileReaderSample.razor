@@ -58,7 +58,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     public async Task ReadAsArrayBufferAsync()
     {
         log = "";
-        var fileReader = await FileReader.CreateAsync(JSRuntime);
+        await using var fileReader = await FileReader.CreateAsync(JSRuntime);
 
         await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
         await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
@@ -80,7 +80,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     public async Task ReadAsArrayBufferInProcessAsync()
     {
         log = "";
-        var fileReader = await FileReaderInProcess.CreateAsync(JSRuntime);
+        await using var fileReader = await FileReaderInProcess.CreateAsync(JSRuntime);
 
         await using var eventListener = await EventListenerInProcess<ProgressEventInProcess, ProgressEvent>.CreateAsync(JSRuntime, e =>
         {
@@ -104,7 +104,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     public async Task ReadAsBinaryStringAsync()
     {
         log = "";
-        var fileReader = await FileReader.CreateAsync(JSRuntime);
+        await using var fileReader = await FileReader.CreateAsync(JSRuntime);
 
         await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
         await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
@@ -134,7 +134,7 @@ We then use the methods of the <code>FileReader</code> interface to read the <co
     public async Task ReadAsDataURLAsync()
     {
         log = "";
-        var fileReader = await FileReader.CreateAsync(JSRuntime);
+        await using var fileReader = await FileReader.CreateAsync(JSRuntime);
 
         await using var eventListener = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, GetProgressAsync);
         await using var loadEndEventLister = await EventListener<ProgressEvent>.CreateAsync(JSRuntime, async e =>
