@@ -1,26 +1,32 @@
 ﻿using KristofferStrube.Blazor.Streams;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
-/// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#file-section">File browser specs</see>
-/// </summary>
-public class FileInProcess : File
+/// <inheritdoc/>
+[IJSWrapperConverter]
+public class FileInProcess : File, IJSInProcessCreatable<FileInProcess, File>
 {
-    public new IJSInProcessObjectReference JSReference;
-    protected readonly IJSInProcessObjectReference inProcessHelper;
+    /// <inheritdoc/>
+    public new IJSInProcessObjectReference JSReference { get; }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
+    /// A helper module instance from the Blazor.FileAPI library.
     /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="File"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="File"/>.</returns>
+    protected IJSInProcessObjectReference InProcessHelper { get; }
+
+    /// <inheritdoc/>
     public static async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference)
     {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference, CreationOptions options)
+    {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        return new FileInProcess(jSRuntime, inProcessHelper, jSReference);
+        return new FileInProcess(jSRuntime, inProcessHelper, jSReference, options);
     }
 
     /// <summary>
@@ -34,7 +40,7 @@ public class FileInProcess : File
     public static new async Task<FileInProcess> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.Part switch
+        object?[]? jsFileBits = fileBits.Select(blobPart => blobPart.Part switch
             {
                 byte[] part => part,
                 Blob part => part.JSReference,
@@ -42,19 +48,14 @@ public class FileInProcess : File
             })
             .ToArray();
         IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructFile", jsFileBits, fileName, options);
-        return new FileInProcess(jSRuntime, inProcessHelper, jSInstance);
+        return new FileInProcess(jSRuntime, inProcessHelper, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="inProcessHelper">An in process helper instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="File"/>.</param>
-    internal FileInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSInProcessObjectReference, CreationOptions)"/>
+    protected FileInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
-        this.inProcessHelper = inProcessHelper;
         JSReference = jSReference;
+        InProcessHelper = inProcessHelper;
     }
 
     /// <summary>
@@ -64,20 +65,20 @@ public class FileInProcess : File
     public new async Task<ReadableStreamInProcess> StreamAsync()
     {
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
-        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
+        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
     /// The size of this blob.
     /// </summary>
     /// <returns>A <see langword="ulong"/> representing the size of the blob in bytes.</returns>
-    public ulong Size => inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "size");
+    public ulong Size => InProcessHelper.Invoke<ulong>("getAttribute", JSReference, "size");
 
     /// <summary>
     /// The media type of this blob. This is either a parseable MIME type or an empty string.
     /// </summary>
     /// <returns>The MIME type of this blob.</returns>
-    public string Type => inProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
+    public string Type => InProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
 
     /// <summary>
     /// Gets some range of the content of a <see cref="Blob"/> as a new <see cref="Blob"/>.
@@ -91,18 +92,26 @@ public class FileInProcess : File
         start ??= 0;
         end ??= (long)Size;
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("slice", start, end, contentType);
-        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance);
+        return new BlobInProcess(JSRuntime, InProcessHelper, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
     /// The name of the file including file extension.
     /// </summary>
     /// <returns>The file name.</returns>
-    public string Name => inProcessHelper.Invoke<string>("getAttribute", JSReference, "name");
+    public string Name => InProcessHelper.Invoke<string>("getAttribute", JSReference, "name");
 
     /// <summary>
     /// The time that the file was last modified.
     /// </summary>
     /// <returns>A new <see cref="DateTime"/> object representing when the file was last modified.</returns>
-    public DateTime LastModified => DateTime.UnixEpoch.AddMilliseconds(inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "lastModified"));
+    public DateTime LastModified => DateTime.UnixEpoch.AddMilliseconds(InProcessHelper.Invoke<ulong>("getAttribute", JSReference, "lastModified"));
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
+    }
 }

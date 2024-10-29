@@ -1,22 +1,40 @@
 ﻿using KristofferStrube.Blazor.Streams;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#blob-section">Blob browser specs</see>
+/// A <see cref="Blob"/> object refers to a byte sequence,
+/// and has a <see cref="GetSizeAsync"/> attribute which is the total number of bytes in the byte sequence,
+/// and a <see cref="GetTypeAsync"/> attribute, which is an ASCII-encoded string in lower case representing the media type of the byte sequence.
 /// </summary>
-public class Blob : BaseJSWrapper
+/// <remarks><see href="https://www.w3.org/TR/FileAPI/#blob-section">See the API definition here</see></remarks>
+[IJSWrapperConverter]
+public class Blob : BaseJSWrapper, IJSCreatable<Blob>
 {
+    /// <inheritdoc/>
+    public static async Task<Blob> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static Task<Blob> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new Blob(jSRuntime, jSReference, options));
+    }
+
     /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="Blob"/>.</param>
     /// <returns>A wrapper instance for a <see cref="Blob"/>.</returns>
+    [Obsolete("This will be removed in the next major release as all creator methods should be asynchronous for uniformity. Use CreateAsync instead.")]
     public static Blob Create(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return new Blob(jSRuntime, jSReference);
+        return new Blob(jSRuntime, jSReference, new());
     }
 
     /// <summary>
@@ -37,15 +55,11 @@ public class Blob : BaseJSWrapper
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
-        return new Blob(jSRuntime, jSInstance);
+        return new Blob(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="Blob"/>.</param>
-    internal Blob(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected Blob(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 
     /// <summary>
     /// The size of this blob.
@@ -79,7 +93,7 @@ public class Blob : BaseJSWrapper
         start ??= 0;
         end ??= (long)await GetSizeAsync();
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("slice", start, end, contentType);
-        return new Blob(jSRuntime, jSInstance);
+        return new Blob(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
@@ -89,7 +103,7 @@ public class Blob : BaseJSWrapper
     public async Task<ReadableStream> StreamAsync()
     {
         IJSObjectReference jSInstance = await JSReference.InvokeAsync<IJSObjectReference>("stream");
-        return await ReadableStream.CreateAsync(jSRuntime, jSInstance);
+        return await ReadableStream.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>

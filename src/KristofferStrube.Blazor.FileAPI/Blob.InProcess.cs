@@ -1,26 +1,32 @@
 ﻿using KristofferStrube.Blazor.Streams;
+using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
-/// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#blob-section">Blob browser specs</see>
-/// </summary>
-public class BlobInProcess : Blob
+/// <inheritdoc/>
+[IJSWrapperConverter]
+public class BlobInProcess : Blob, IJSInProcessCreatable<BlobInProcess, Blob>
 {
-    public new IJSInProcessObjectReference JSReference;
-    protected readonly IJSInProcessObjectReference inProcessHelper;
+    /// <inheritdoc />
+    public new IJSInProcessObjectReference JSReference { get; }
 
     /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
+    /// A helper module instance from the Blazor.FileAPI library.
     /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="Blob"/>.</param>
-    /// <returns>A wrapper instance for a <see cref="Blob"/>.</returns>
+    protected IJSInProcessObjectReference InProcessHelper { get; }
+
+    /// <inheritdoc/>
     public static async Task<BlobInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference)
     {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static async Task<BlobInProcess> CreateAsync(IJSRuntime jSRuntime, IJSInProcessObjectReference jSReference, CreationOptions options)
+    {
         IJSInProcessObjectReference inProcessHelper = await jSRuntime.GetInProcessHelperAsync();
-        return new BlobInProcess(jSRuntime, inProcessHelper, jSReference);
+        return new BlobInProcess(jSRuntime, inProcessHelper, jSReference, options);
     }
 
     /// <summary>
@@ -41,19 +47,14 @@ public class BlobInProcess : Blob
             })
             .ToArray();
         IJSInProcessObjectReference jSInstance = await inProcessHelper.InvokeAsync<IJSInProcessObjectReference>("constructBlob", jsBlobParts, options);
-        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance);
+        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="Blob"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="inProcessHelper">An in process helper instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="Blob"/>.</param>
-    internal BlobInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference) : base(jSRuntime, jSReference)
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSInProcessObjectReference, CreationOptions)"/>
+    protected internal BlobInProcess(IJSRuntime jSRuntime, IJSInProcessObjectReference inProcessHelper, IJSInProcessObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options)
     {
-        this.inProcessHelper = inProcessHelper;
         JSReference = jSReference;
+        InProcessHelper = inProcessHelper;
     }
 
     /// <summary>
@@ -63,20 +64,20 @@ public class BlobInProcess : Blob
     public new async Task<ReadableStreamInProcess> StreamAsync()
     {
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("stream");
-        return await ReadableStreamInProcess.CreateAsync(jSRuntime, jSInstance);
+        return await ReadableStreamInProcess.CreateAsync(JSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <summary>
     /// The size of this blob.
     /// </summary>
     /// <returns>A <see langword="ulong"/> representing the size of the blob in bytes.</returns>
-    public ulong Size => inProcessHelper.Invoke<ulong>("getAttribute", JSReference, "size");
+    public ulong Size => InProcessHelper.Invoke<ulong>("getAttribute", JSReference, "size");
 
     /// <summary>
     /// The media type of this blob. This is either a parseable MIME type or an empty string.
     /// </summary>
     /// <returns>The MIME type of this blob.</returns>
-    public string Type => inProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
+    public string Type => InProcessHelper.Invoke<string>("getAttribute", JSReference, "type");
 
     /// <summary>
     /// Gets some range of the content of a <see cref="Blob"/> as a new <see cref="Blob"/>.
@@ -90,6 +91,14 @@ public class BlobInProcess : Blob
         start ??= 0;
         end ??= (long)Size;
         IJSInProcessObjectReference jSInstance = JSReference.Invoke<IJSInProcessObjectReference>("slice", start, end, contentType);
-        return new BlobInProcess(jSRuntime, inProcessHelper, jSInstance);
+        return new BlobInProcess(JSRuntime, InProcessHelper, jSInstance, new() { DisposesJSReference = true });
+    }
+
+    /// <inheritdoc/>
+    public new async ValueTask DisposeAsync()
+    {
+        await InProcessHelper.DisposeAsync();
+        await base.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

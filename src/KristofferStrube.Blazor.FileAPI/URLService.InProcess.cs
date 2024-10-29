@@ -7,6 +7,7 @@ namespace KristofferStrube.Blazor.FileAPI;
 /// </summary>
 public class URLServiceInProcess : URLService, IURLServiceInProcess
 {
+    /// <inheritdoc/>
     protected new readonly IJSInProcessRuntime jSRuntime;
 
     /// <summary>

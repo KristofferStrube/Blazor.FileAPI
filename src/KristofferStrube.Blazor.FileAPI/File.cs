@@ -1,21 +1,39 @@
-﻿using Microsoft.JSInterop;
+﻿using KristofferStrube.Blazor.WebIDL;
+using Microsoft.JSInterop;
 
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// <see href="https://www.w3.org/TR/FileAPI/#file-section">File browser specs</see>
+/// A <see cref="File"/> object is a <see cref="Blob"/> object with a <see cref="GetNameAsync"/> attribute, which is a string;
+/// it can be created within the web application via a constructor,
+/// or is a reference to a byte sequence from a file from the underlying (OS) file system.
 /// </summary>
-public class File : Blob
+/// <remarks><see href="https://www.w3.org/TR/FileAPI/#file-section">See the API definition here</see></remarks>
+[IJSWrapperConverter]
+public class File : Blob, IJSCreatable<File>
 {
+    /// <inheritdoc/>
+    public static new async Task<File> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference)
+    {
+        return await CreateAsync(jSRuntime, jSReference, new());
+    }
+
+    /// <inheritdoc/>
+    public static new Task<File> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
+    {
+        return Task.FromResult(new File(jSRuntime, jSReference, options));
+    }
+
     /// <summary>
     /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
     /// </summary>
     /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
     /// <param name="jSReference">A JS reference to an existing <see cref="File"/>.</param>
     /// <returns>A wrapper instance for a <see cref="File"/>.</returns>
+    [Obsolete("This will be removed in the next major release as all creator methods should be asynchronous for uniformity. Use CreateAsync instead.")]
     public static new File Create(IJSRuntime jSRuntime, IJSObjectReference jSReference)
     {
-        return new File(jSRuntime, jSReference);
+        return new File(jSRuntime, jSReference, new());
     }
 
     /// <summary>
@@ -29,7 +47,7 @@ public class File : Blob
     public static async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
         IJSObjectReference helper = await jSRuntime.GetHelperAsync();
-        object?[]? jsFileBits = fileBits.Select<BlobPart, object?>(blobPart => blobPart.Part switch
+        object?[]? jsFileBits = fileBits.Select(blobPart => blobPart.Part switch
             {
                 byte[] part => part,
                 Blob part => part.JSReference,
@@ -37,15 +55,11 @@ public class File : Blob
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFile", jsFileBits, fileName, options);
-        return new File(jSRuntime, jSInstance);
+        return new File(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
-    /// <summary>
-    /// Constructs a wrapper instance for a given JS Instance of a <see cref="File"/>.
-    /// </summary>
-    /// <param name="jSRuntime">An <see cref="IJSRuntime"/> instance.</param>
-    /// <param name="jSReference">A JS reference to an existing <see cref="File"/>.</param>
-    internal File(IJSRuntime jSRuntime, IJSObjectReference jSReference) : base(jSRuntime, jSReference) { }
+    /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
+    protected File(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options) : base(jSRuntime, jSReference, options) { }
 
     /// <summary>
     /// The name of the file including file extension.

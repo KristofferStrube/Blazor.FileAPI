@@ -1,5 +1,5 @@
 ﻿@page "/"
-@implements IDisposable
+@implements IAsyncDisposable
 
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
@@ -38,8 +38,15 @@ content type: @file?.Type
         blobURL = URL.CreateObjectURL(file);
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
-        URL.RevokeObjectURL(blobURL);
+        if (file is not null)
+        {
+            await file.DisposeAsync();
+        }
+        if (blobURL is not "")
+        {
+            URL.RevokeObjectURL(blobURL);
+        }
     }
 }
