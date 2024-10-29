@@ -138,39 +138,47 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
     /// <summary>
     /// Invoked when a load starts.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadStartEventListener and RemoveOnLoadStartEventListener as they are more memory safe.")]
+    [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnLoadStart { get; set; }
 
     /// <summary>
     /// Invoked when the progress of a load changes which includes when it ends.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnProgressEventListener and RemoveOnProgressEventListener as they are more memory safe.")]
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnProgress { get; set; }
 
     /// <summary>
     /// Invoked when a load ends successfully.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadEventListener and RemoveOnLoadEventListener as they are more memory safe.")]
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnLoad { get; set; }
 
     /// <summary>
     /// Invoked when a load is aborted.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnAbortEventListener and RemoveOnAbortEventListener as they are more memory safe.")]
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnAbort { get; set; }
 
     /// <summary>
     /// Invoked when a load fails due to an error.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnErrorEventListener and RemoveOnErrorEventListener as they are more memory safe.")]
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnError { get; set; }
 
     /// <summary>
     /// Invoked when a load finishes successfully or not.
     /// </summary>
+    [Obsolete("This will be removed in the next major release in favor of AddOnLoadEndEventListener and RemoveOnLoadEndEventListener as they are more memory safe.")]
     [JsonIgnore]
     public new Action<ProgressEventInProcess>? OnLoadEnd { get; set; }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnLoadStart(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -182,7 +190,8 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         OnLoadStart.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnProgress(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -194,7 +203,8 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         OnProgress.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnLoad(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -206,7 +216,8 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         OnLoad.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnAbort(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -218,7 +229,8 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         OnAbort.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnError(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -230,7 +242,8 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
         OnError.Invoke(new ProgressEventInProcess(JSRuntime, InProcessHelper, jsProgressEvent, new() { DisposesJSReference = true }));
     }
 
-    /// <summary>Internal method that will be removed in next major release.</summary>
+    /// <summary>Internal method.</summary>
+    [Obsolete("This will be removed in the next major release.")]
     [JSInvokable]
     public void InvokeOnLoadEnd(IJSInProcessObjectReference jsProgressEvent)
     {
@@ -246,28 +259,148 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
     public void AddEventListener<TInProcessEvent, TEvent>(string type, EventListenerInProcess<TInProcessEvent, TEvent>? callback, AddEventListenerOptions? options = null)
          where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
     {
-        this.AddEventListener(InProcessHelper, type, callback, options);
+        JSReference.InvokeVoid("addEventListener", type, callback?.JSReference, options);
     }
 
     /// <inheritdoc/>
     public void AddEventListener<TInProcessEvent, TEvent>(EventListenerInProcess<TInProcessEvent, TEvent>? callback, AddEventListenerOptions? options = null)
          where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
     {
-        this.AddEventListener(InProcessHelper, callback, options);
+        JSReference.InvokeVoid("addEventListener", typeof(TEvent).Name, callback?.JSReference, options);
     }
 
     /// <inheritdoc/>
     public void RemoveEventListener<TInProcessEvent, TEvent>(string type, EventListenerInProcess<TInProcessEvent, TEvent>? callback, EventListenerOptions? options = null)
          where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
     {
-        this.RemoveEventListener(InProcessHelper, type, callback, options);
+        JSReference.InvokeVoid("removeEventListener", type, callback?.JSReference, options);
     }
 
     /// <inheritdoc/>
     public void RemoveEventListener<TInProcessEvent, TEvent>(EventListenerInProcess<TInProcessEvent, TEvent>? callback, EventListenerOptions? options = null)
          where TEvent : Event, IJSCreatable<TEvent> where TInProcessEvent : IJSInProcessCreatable<TInProcessEvent, TEvent>
     {
-        this.RemoveEventListener(InProcessHelper, callback, options);
+        JSReference.InvokeVoid("removeEventListener", typeof(TEvent).Name, callback?.JSReference, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when a load is started.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnLoadStartEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("loadstart", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadStartEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnLoadStartEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("loadstart", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when the progress of a load changes which includes when it ends.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnProgressEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("progress", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnProgressEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnProgressEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("progress", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when a load ends successfully.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnLoadEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("load", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnLoadEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("load", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when a load is aborted.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnAbortEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("abort", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnAbortEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnAbortEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("abort", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when a load fails due to an error.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnErrorEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("error", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnErrorEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnErrorEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("error", callback, options);
+    }
+
+    /// <summary>
+    /// Adds an <see cref="EventListenerInProcess{TInProcessEvent, TEvent}"/> for when a load finishes successfully or not.
+    /// </summary>
+    /// <param name="callback">Callback that will be invoked when the event is dispatched.</param>
+    /// <param name="options"><inheritdoc cref="AddEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, AddEventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void AddOnLoadEndEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, AddEventListenerOptions? options = null)
+    {
+        AddEventListener("loadend", callback, options);
+    }
+
+    /// <summary>
+    /// Removes the event listener from the event listener list if it has been parsed to <see cref="AddOnLoadEndEventListener"/> previously.
+    /// </summary>
+    /// <param name="callback">The callback <see cref="EventListener{TEvent}"/> that you want to stop listening to events.</param>
+    /// <param name="options"><inheritdoc cref="RemoveEventListener{TInProcessEvent, TEvent}(string, EventListenerInProcess{TInProcessEvent, TEvent}?, EventListenerOptions?)" path="/param[@name='options']"/></param>
+    public void RemoveOnLoadEndEventListener(EventListenerInProcess<ProgressEventInProcess, ProgressEvent> callback, EventListenerOptions? options = null)
+    {
+        RemoveEventListener("loadend", callback, options);
     }
 
     /// <inheritdoc/>
