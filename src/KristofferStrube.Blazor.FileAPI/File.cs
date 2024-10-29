@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 namespace KristofferStrube.Blazor.FileAPI;
 
 /// <summary>
-/// A File object is a <see cref="Blob"/> object with a <see cref="GetNameAsync"/> attribute, which is a string;
+/// A <see cref="File"/> object is a <see cref="Blob"/> object with a <see cref="GetNameAsync"/> attribute, which is a string;
 /// it can be created within the web application via a constructor,
 /// or is a reference to a byte sequence from a file from the underlying (OS) file system.
 /// </summary>
