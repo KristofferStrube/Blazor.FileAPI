@@ -46,7 +46,7 @@ public class Blob : BaseJSWrapper, IJSCreatable<Blob>
     /// <returns></returns>
     public static async Task<Blob> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart>? blobParts = null, BlobPropertyBag? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        await using IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         object?[]? jsBlobParts = blobParts?.Select<BlobPart, object?>(blobPart => blobPart.Part switch
             {
                 byte[] part => part,
@@ -55,7 +55,7 @@ public class Blob : BaseJSWrapper, IJSCreatable<Blob>
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructBlob", jsBlobParts, options);
-        return new Blob(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>

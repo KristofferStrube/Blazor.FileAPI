@@ -46,7 +46,7 @@ public class File : Blob, IJSCreatable<File>
     /// <returns></returns>
     public static async Task<File> CreateAsync(IJSRuntime jSRuntime, IList<BlobPart> fileBits, string fileName, FilePropertyBag? options = null)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        await using IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         object?[]? jsFileBits = fileBits.Select(blobPart => blobPart.Part switch
             {
                 byte[] part => part,
@@ -55,7 +55,7 @@ public class File : Blob, IJSCreatable<File>
             })
             .ToArray();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFile", jsFileBits, fileName, options);
-        return new File(jSRuntime, jSInstance, new() { DisposesJSReference = true });
+        return new(jSRuntime, jSInstance, new() { DisposesJSReference = true });
     }
 
     /// <inheritdoc cref="CreateAsync(IJSRuntime, IJSObjectReference, CreationOptions)"/>
