@@ -26,7 +26,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <inheritdoc/>
     public static new async Task<FileReader> CreateAsync(IJSRuntime jSRuntime, IJSObjectReference jSReference, CreationOptions options)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        await using IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         FileReader fileReader = new(jSRuntime, jSReference, options);
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSReference);
         return fileReader;
@@ -39,7 +39,7 @@ public class FileReader : EventTarget, IJSCreatable<FileReader>
     /// <returns>A wrapper instance for a <see cref="FileReader"/>.</returns>
     public static new async Task<FileReader> CreateAsync(IJSRuntime jSRuntime)
     {
-        IJSObjectReference helper = await jSRuntime.GetHelperAsync();
+        await using IJSObjectReference helper = await jSRuntime.GetHelperAsync();
         IJSObjectReference jSInstance = await helper.InvokeAsync<IJSObjectReference>("constructFileReader");
         FileReader fileReader = new(jSRuntime, jSInstance, new() { DisposesJSReference = true });
         await helper.InvokeVoidAsync("registerEventHandlersAsync", DotNetObjectReference.Create(fileReader), jSInstance);
