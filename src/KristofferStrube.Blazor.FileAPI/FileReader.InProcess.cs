@@ -1,5 +1,4 @@
 ﻿using KristofferStrube.Blazor.DOM;
-using KristofferStrube.Blazor.DOM.Extensions;
 using KristofferStrube.Blazor.WebIDL;
 using Microsoft.JSInterop;
 using System.Text.Json.Serialization;
@@ -404,7 +403,7 @@ public class FileReaderInProcess : FileReader, IJSInProcessCreatable<FileReaderI
     /// <inheritdoc/>
     public bool DispatchEvent(Event eventInstance)
     {
-        return IEventTargetInProcessExtensions.DispatchEvent(this, eventInstance);
+        return JSReference.Invoke<bool>("dispatchEvent", eventInstance);
     }
 
     /// <inheritdoc/>
