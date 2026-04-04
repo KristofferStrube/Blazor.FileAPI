@@ -5,8 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.4.2] - 2026-04-04
+### Changed
+- Changed the version of Blazor.Streams to use the newest version which is `0.6.1`.
+
+## [0.4.1] - 2026-03-31
 ### Fixed
 - Fixed that `CreateAsync` methods in `Blob`, `File`, and `FileReader` leaked `IJSObjectReference`s.
+### Changed
+- Changed the version of Blazor.Streams to use the newest version which is `0.6.0`.
 
 ## [0.4.0] - 2024-10-29
 ### Deprecated
