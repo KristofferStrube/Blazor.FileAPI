@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.4.4] - 2026-04-09
+## [0.4.4] - 2026-04-12
 ### Changed
 - Changed the version of Blazor.Streams to use the newest version which is `0.6.3`.
 
